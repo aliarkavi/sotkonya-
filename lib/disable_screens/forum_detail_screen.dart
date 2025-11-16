@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
 
 class ForumDetailScreen extends StatelessWidget {
@@ -17,4 +17,5 @@ class ForumDetailScreen extends StatelessWidget {
       ),
     );
   }
-}
+    }
+}*/

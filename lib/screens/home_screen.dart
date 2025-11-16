@@ -6,7 +6,7 @@ import 'news_detail_screen.dart';
 import 'event_detail_screen.dart';
 import 'news_screen.dart';
 import 'events_screen.dart';
-import 'timeline_screen.dart';
+//import 'timeline_screen.dart';
 
 
 class HomeScreen extends StatelessWidget {
@@ -25,14 +25,14 @@ class HomeScreen extends StatelessWidget {
             // Header
             const SizedBox(height: 8),
             // Timeline quick access
-            Align(
+          /*  Align(
               alignment: Alignment.centerRight,
               child: TextButton.icon(
                 onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TimelineScreen())),
                 icon: const Icon(Icons.history),
                 label: const Text('مسيرة التجمع'),
               ),
-            ),
+            ),*/
             const Text('الأخبار', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(

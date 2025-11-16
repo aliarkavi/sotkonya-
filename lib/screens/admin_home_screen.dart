@@ -6,10 +6,10 @@ import 'housing_screen.dart';
 import 'settings_screen.dart';
 import 'news_screen.dart';
 import 'events_screen.dart';
-import 'forum_screen.dart';
+//import 'forum_screen.dart'  ;
 import 'content_admin_screen.dart';
 import 'admin_users_screen.dart';
-import 'timeline_screen.dart';
+//import 'timeline_screen.dart';
 
 class AdminHomeScreen extends StatelessWidget {
   const AdminHomeScreen({super.key});
@@ -74,21 +74,21 @@ class AdminHomeScreen extends StatelessWidget {
               title: const Text('الفعاليات'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EventsScreen())),
             ),
-            ListTile(
+          /*  ListTile(
               leading: const Icon(Icons.forum),
               title: const Text('المنتدى'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ForumScreen())),
-            ),
+            ), */
             ListTile(
               leading: const Icon(Icons.home_work),
               title: const Text('السكنات'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HousingScreen())),
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(Icons.history),
               title: const Text('مسيرة التجمع'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TimelineScreen())),
-            ),
+            ),*/
             ListTile(
               leading: const Icon(Icons.manage_accounts),
               title: const Text('إدارة المحتوى'),

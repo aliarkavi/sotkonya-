@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
-import 'admin_home_screen.dart';
+import 'admin_login_screen.dart';
 import 'member_home_screen.dart';
 import 'protected_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,76 +18,188 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
   bool _loading = false;
   String? _error;
 
   @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF151C26),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('تسجيل الدخول'),
-        centerTitle: true,
-      ),
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 40),
+
+                /// ICON
+                Container(
+                  height: 85,
+                  width: 85,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xff006db7),
+                        Color(0xff00b39f),
+                        Color(0xffeb5623),
+                        Color(0xfff2b200),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
+                  child: const Icon(Icons.login, size: 45, color: Colors.white),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "مرحباً بعودتك",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
+                ),
+
+                const SizedBox(height: 6),
+
+                const Text(
+                  "سجل دخولك للمتابعة",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black54,
+                  ),
+                ),
+
+                const SizedBox(height: 35),
+
+                if (_error != null)
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+
+                /// EMAIL FIELD
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('البريد الإلكتروني'),
                   textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
-                  validator: (value) => (value == null || value.isEmpty) ? 'يرجى إدخال البريد الإلكتروني' : null,
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  decoration: _inputField("اسم المستخدم أو البريد الإلكتروني"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "يرجى إدخال البريد" : null,
                 ),
-                const SizedBox(height: 16),
+
+                const SizedBox(height: 18),
+
+                /// PASSWORD FIELD
                 TextFormField(
                   controller: passwordController,
                   obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('كلمة المرور'),
                   textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
-                  validator: (value) => (value == null || value.isEmpty) ? 'يرجى إدخال كلمة المرور' : null,
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                  decoration: _inputField("كلمة المرور"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "يرجى إدخال كلمة المرور" : null,
                 ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF039BE5),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+
+                const SizedBox(height: 12),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      "نسيت كلمة المرور؟",
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontSize: 14,
+                      ),
                     ),
-                    onPressed: _loading ? null : _login,
-                    child: _loading
-                        ? const SizedBox(
-                            width: 24, height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                          )
-                        : const Text('تسجيل الدخول'),
                   ),
                 ),
+
+                const SizedBox(height: 10),
+
+                /// LOGIN BUTTON — gradient 4 colors
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0xff006db7),
+                          Color(0xff00b39f),
+                          Color(0xffeb5623),
+                          Color(0xfff2b200),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _loading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _loading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "تسجيل دخول",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 22),
+
+                /// REGISTER
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("ليس لديك حساب؟"),
+                    TextButton(
+                      onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      );
+                    },
+                      child: const Text(
+                        "تسجيل جديد",
+                        style: TextStyle(color: Colors.teal),
+                      ),
+                    )
+                  ],
+                ),
+
+                const SizedBox(height: 15),
+
+                TextButton(
+                  onPressed:() {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                      );
+                    },
+                  child: const Text(
+                    "دخول الإداريين",
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -95,32 +208,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputField(String label) {
     return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFFB0B8C1)),
+      hintText: label,
+      hintTextDirection: TextDirection.rtl,
       filled: true,
-      fillColor: const Color(0xFF232B39),
+      fillColor: const Color(0xfff5f5f5),
+      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF232B39)),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF232B39)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF039BE5)),
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
     );
   }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _error = null; });
-    debugPrint('Attempting sign in: ${emailController.text.trim()}');
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
@@ -128,71 +237,49 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final user = FirebaseAuth.instance.currentUser;
-      final uid = user?.uid;
-      if (uid == null) throw Exception('فشل استرجاع المستخدم');
+      if (user == null) throw Exception("تعذر تسجيل الدخول");
 
-      AppUser? appUser;
-      try {
-        debugPrint('Fetching user doc for uid=$uid');
-        appUser = await UserService().getUser(uid);
-      } catch (e, st) {
-        debugPrint('getUser error: $e\n$st');
-        setState(() { _loading = false; _error = 'فشل استرجاع بيانات المستخدم من الخادم'; });
-        await showDialog<void>(context: context, builder: (_) => AlertDialog(title: const Text('خطأ'), content: Text(e.toString()), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('حسناً'))]));
-        return;
-      }
+      final uid = user.uid;
+      AppUser? appUser = await UserService().getUser(uid);
 
       if (appUser == null) {
-        // Create a minimal AppUser record for this authenticated user
-        final displayName = user?.displayName;
-        final defaultName = (displayName != null && displayName.isNotEmpty)
-            ? displayName
-            : (user?.email?.split('@').first ?? 'مستخدم');
-        final newUser = AppUser(
+        appUser = AppUser(
           id: uid,
-          name: defaultName,
-          email: user?.email ?? '',
+          name: user.email!.split('@').first,
+          email: user.email!,
           role: 'user',
-          major: '',
           gender: '',
-          photoUrl: user?.photoURL ?? '',
+          major: '',
+          photoUrl: '',
         );
-        try {
-          debugPrint('Creating user doc for $uid');
-          await UserService().createUser(newUser);
-          appUser = newUser;
-        } catch (e, st) {
-          debugPrint('createUser error: $e\n$st');
-          setState(() { _loading = false; _error = 'فشل إنشاء سجل المستخدم'; });
-          await showDialog<void>(context: context, builder: (_) => AlertDialog(title: const Text('خطأ إنشاء المستخدم'), content: Text(e.toString()), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('حسناً'))]));
-          return;
-        }
+        await UserService().createUser(appUser);
       }
 
-      // At this point appUser is non-null
       if (appUser.role == 'visitor') {
-        setState(() { _loading = false; });
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const ProtectedScreen(message: 'هذه الصفحة تتطلب انتسابًا. الرجاء الانتساب للوصول الكامل.')));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ProtectedScreen(
+              message: "هذه الصفحة تتطلب انتسابًا.",
+            ),
+          ),
+        );
         return;
       }
 
-      if (appUser.role == 'admin') {
-        setState(() { _loading = false; });
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const AdminHomeScreen()));
-        return;
-      }
-
-      // default: member
-      setState(() { _loading = false; });
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const MemberHomeScreen()));
-    } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException during signIn: ${e.message}');
-      setState(() { _loading = false; _error = e.message ?? 'فشل تسجيل الدخول'; });
-      await showDialog<void>(context: context, builder: (_) => AlertDialog(title: const Text('خطأ تسجيل الدخول'), content: Text(e.message ?? e.toString()), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('حسناً'))]));
-    } catch (e, st) {
-      debugPrint('General login error: $e\n$st');
-      setState(() { _loading = false; _error = 'فشل تسجيل الدخول'; });
-      await showDialog<void>(context: context, builder: (_) => AlertDialog(title: const Text('خطأ'), content: Text(e.toString()), actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('حسناً'))]));
+    
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const MemberHomeScreen()),
+      );
+    } catch (e) {
+      setState(() {
+        _error = "بيانات تسجيل الدخول غير صحيحة";
+      });
     }
+
+    setState(() {
+      _loading = false;
+    });
   }
 }

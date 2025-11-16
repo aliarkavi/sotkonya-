@@ -6,8 +6,8 @@ import 'housing_screen.dart';
 import 'settings_screen.dart';
 import 'news_screen.dart';
 import 'events_screen.dart';
-import 'forum_screen.dart';
-import 'timeline_screen.dart';
+//import 'forum_screen.dart';
+//import 'timeline_screen.dart';
 
 class MemberHomeScreen extends StatelessWidget {
   const MemberHomeScreen({super.key});
@@ -71,11 +71,11 @@ class MemberHomeScreen extends StatelessWidget {
                   title: const Text('الفعاليات'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EventsScreen())),
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(Icons.forum),
                   title: const Text('المنتدى'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ForumScreen())),
-            ),
+            ),*/
             ListTile(
               leading: const Icon(Icons.home_work),
                   title: const Text('السكنات'),
@@ -86,11 +86,11 @@ class MemberHomeScreen extends StatelessWidget {
                   title: const Text('الإعدادات'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
             ),
-            ListTile(
+            /*ListTile(
               leading: const Icon(Icons.history),
                   title: const Text('مسيرة التجمع'),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TimelineScreen())),
-            ),
+            ),*/
           ],
         ),
       ),

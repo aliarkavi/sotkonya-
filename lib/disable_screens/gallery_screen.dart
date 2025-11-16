@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 
 class GalleryScreen extends StatelessWidget {
   const GalleryScreen({super.key});
@@ -11,3 +11,4 @@ class GalleryScreen extends StatelessWidget {
     );
   }
 }
+*/

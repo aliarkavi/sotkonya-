@@ -12,14 +12,14 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController adminIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _loading = false;
   String? _error;
 
   @override
   void dispose() {
-    emailController.dispose();
+    adminIdController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -27,118 +27,188 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF151C26),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('دخول الإدارة'),
-        centerTitle: true,
-      ),
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(_error!, style: const TextStyle(color: Colors.red)),
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // ---------------- Icon circle ----------------
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Color(0xff006db7), Color(0xff00b39f)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                TextFormField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('البريد الإلكتروني'),
-                  textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
-                  validator: (value) => (value == null || value.isEmpty) ? 'يرجى إدخال البريد الإلكتروني' : null,
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: _inputDecoration('كلمة المرور'),
-                  textAlign: TextAlign.right,
-                  textDirection: TextDirection.rtl,
-                  validator: (value) => (value == null || value.isEmpty) ? 'يرجى إدخال كلمة المرور' : null,
+                child: const Icon(Icons.security, color: Colors.white, size: 42),
+              ),
+              const SizedBox(height: 20),
+
+              // ---------------- Title ----------------
+              const Text(
+                'دخول الإداريين',
+                style: TextStyle( color: Color.fromARGB(255, 0, 9, 15),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4B2B1B),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 6),
+
+              const Text(
+                'لوحة التحكم الإدارية',
+                style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 0, 0, 0)),
+              ),
+
+              const SizedBox(height: 40),
+
+              if (_error != null)
+                Text(_error!, style: const TextStyle(color: Colors.red)),
+
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    _field(
+                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                      label: "معرّف المدير",
+                      controller: adminIdController,
+                      isPassword: false,
                     ),
+                    const SizedBox(height: 16),
+                    _field( style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+                      label: "كلمة المرور",
+                      controller: passwordController,
+                      isPassword: true,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // ---------------- Login button ----------------
+              SizedBox(
+                width: double.infinity,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xff006db7), Color(0xff00b39f)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: ElevatedButton(
                     onPressed: _loading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     child: _loading
                         ? const SizedBox(
-                            width: 24, height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('دخول الإدارة'),
+                        : const Text(
+                            'دخول لوحة التحكم',
+                            style: TextStyle(color: Colors.white,
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // ---------------- Back link ----------------
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  '← العودة لتسجيل دخول الطلاب',
+                  style: TextStyle(color: Colors.grey, fontSize: 15),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Color(0xFFB0B8C1)),
-      filled: true,
-      fillColor: const Color(0xFF232B39),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF232B39)),
+  Widget _field({
+    required String label,
+    required TextEditingController controller,
+    required bool isPassword, required TextStyle style,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      textAlign: TextAlign.right,
+      decoration: InputDecoration(
+        hintText: label,
+        hintTextDirection: TextDirection.rtl,
+        filled: true,
+        fillColor: const Color(0xFFF5F5F5),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF232B39)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF039BE5)),
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      validator: (value) =>
+          value == null || value.isEmpty ? "يرجى إدخال $label" : null,
     );
   }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; _error = null; });
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
+        email: adminIdController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // تحقق من الدور (admin) بعد تسجيل الدخول
+
       final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) throw Exception('فشل الحصول على معلومات المستخدم');
-      final appUser = await UserService().getUser(uid);
-      if (appUser == null || appUser.role != 'admin') {
-        // not an admin: sign out and show error
+      if (uid == null) throw Exception();
+
+      final user = await UserService().getUser(uid);
+      if (user == null || user.role != 'admin') {
         await FirebaseAuth.instance.signOut();
-        setState(() { _loading = false; _error = 'ليس لديك صلاحيات الدخول كمسؤول.'; });
+        setState(() {
+          _loading = false;
+          _error = "ليس لديك صلاحيات الدخول كمسؤول.";
+        });
         return;
       }
-      // authorized admin -> navigate to admin home
+
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (_) => const AdminHomeScreen()), (r) => false);
-    } on FirebaseAuthException catch (e) {
-      setState(() { _loading = false; _error = e.message ?? 'فشل تسجيل الدخول'; });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+      );
     } catch (e) {
-      setState(() { _loading = false; _error = 'فشل تسجيل الدخول'; });
+      setState(() {
+        _loading = false;
+        _error = "فشل تسجيل الدخول";
+      });
     }
   }
 }
+      
