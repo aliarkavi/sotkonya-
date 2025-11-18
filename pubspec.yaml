@@ -31,11 +31,18 @@ dependencies:
   flutter:
     sdk: flutter
 
+
+      
+  # State management
+  
+
+
+
   # i18n
   flutter_localizations:
     sdk: flutter
   intl: 0.20.2
-  flutter_launcher_icons: "^0.13.1"
+  
 
   # UI
   phosphor_flutter: ^1.0.0  
@@ -57,10 +64,12 @@ dependencies:
   fluttertoast: ^8.2.1
   shared_preferences: ^2.1.1
   url_launcher: ^6.1.7
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -76,6 +85,8 @@ dev_dependencies:
 flutter:
   assets:
     - assets/logo.png
+
+    
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -111,3 +122,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"

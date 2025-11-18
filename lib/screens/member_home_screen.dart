@@ -1,113 +1,348 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'news_screen.dart';
+import 'news_detail_screen.dart';
 import 'housing_screen.dart';
 import 'settings_screen.dart';
-import 'news_screen.dart';
 import 'events_screen.dart';
-//import 'forum_screen.dart';
-//import 'timeline_screen.dart';
 
-class MemberHomeScreen extends StatelessWidget {
+class MemberHomeScreen extends StatefulWidget {
   const MemberHomeScreen({super.key});
+
+  @override
+  State<MemberHomeScreen> createState() => _MemberHomeScreenState();
+}
+
+class _MemberHomeScreenState extends State<MemberHomeScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    const _HomePage(), // الصفحة الرئيسية مع موجز الأخبار
+    const EventsScreen(),
+    const HousingScreen(),
+    const SettingsScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: 'القائمة',
-          ),
-        ),
-            title: const Text('الرئيسية'),
-        backgroundColor: const Color(0xFF151C26),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            tooltip: 'الملف الشخصي',
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'تسجيل الخروج',
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-          ),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'الرئيسية'),
+          BottomNavigationBarItem(icon: Icon(Icons.event), label: 'الفعاليات'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_work), label: 'السكن'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'الإعدادات'),
         ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+    );
+  }
+}
+
+// -------------------------
+// الصفحة الرئيسية مع الهيدر وموجز الأخبار والفعاليات القادمة
+// -------------------------
+class _HomePage extends StatelessWidget {
+  const _HomePage();
+
+  String _formatDate(Timestamp? ts) {
+    if (ts == null) return '';
+    final dt = ts.toDate().toLocal();
+    return '${dt.day.toString().padLeft(2,'0')}/${dt.month.toString().padLeft(2,'0')}/${dt.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String userName = "أحمد محمد";
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(12),
+        child: Column(
           children: [
-            DrawerHeader(
-              decoration: const BoxDecoration(color: Color(0xFF151C26)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            // -------------------------
+            // الهيدر
+            // -------------------------
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF0079A9),
+                    Color(0xFF02BFA5),
+                    Color(0xFFE5833A),
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const CircleAvatar(radius: 28, child: Icon(Icons.person)),
-                  const SizedBox(height: 8),
-                      const Text('SOTKonya', style: TextStyle(color: Colors.white, fontSize: 18)),
-                  const SizedBox(height: 4),
-                      const Text('الزائر', style: TextStyle(color: Colors.white70)),
+                  const SizedBox(width: 28),
+                  Column(
+                    children: [
+                      const Text(
+                        "مرحباً،",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.notifications_none,
+                        color: Colors.white, size: 26),
+                    onPressed: () {},
+                  ),
                 ],
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.newspaper),
-                  title: const Text('الأخبار'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const NewsScreen())),
+
+            const SizedBox(height: 25),
+
+            // -------------------------
+            // موجز آخر الأخبار
+            // -------------------------
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('news')
+                  .orderBy('createdAt', descending: true)
+                  .limit(2)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) return const Text('حدث خطأ أثناء جلب الأخبار');
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final docs = snapshot.data?.docs ?? [];
+                if (docs.isEmpty) return const Text('لا توجد أخبار حالياً');
+
+                return Card(
+                  color: Colors.white,
+                  elevation: 4,
+                  shadowColor: Colors.black26,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('آخر الأخبار',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold)),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const NewsScreen()),
+                                );
+                              },
+                              child: const Text('عرض الكل',
+                                  style: TextStyle(fontSize: 14, color: Colors.black)),
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        ...docs.map((doc) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final title = data['title'] ?? '';
+                          final desc = data['description'] ?? data['excerpt'] ?? '';
+                          final imageUrl = data['imageUrl'] ?? '';
+                          final ts = data['createdAt'] as Timestamp?;
+
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => NewsDetailScreen(data: data),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            imageUrl,
+                                            width: 80,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(
+                                            width: 80,
+                                            height: 60,
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.image),
+                                          ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 4),
+                                        Text(desc,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                                color: Colors.black54,
+                                                fontSize: 13)),
+                                        const SizedBox(height: 4),
+                                        Text(_formatDate(ts),
+                                            style: const TextStyle(
+                                                fontSize: 11,
+                                                color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-            ListTile(
-              leading: const Icon(Icons.event),
-                  title: const Text('الفعاليات'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const EventsScreen())),
+
+            const SizedBox(height: 24),
+
+            // -------------------------
+            // موجز الفعاليات القادمة
+            // -------------------------
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('events')
+                  .orderBy('startDate')
+                  .limit(2)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) return const Text('حدث خطأ أثناء جلب الفعاليات');
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final docs = snapshot.data?.docs ?? [];
+                if (docs.isEmpty) return const Text('لا توجد فعاليات حالياً');
+
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('الفعاليات القادمة',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold)),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const EventsScreen()),
+                            );
+                          },
+                          child: const Text('عرض الكل',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                              )),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                    ...docs.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      final title = data['title'] ?? '';
+                      final startTs = data['startDate'] as Timestamp?;
+                      final location = data['location'] ?? '';
+
+                      String dateStr = '';
+                      if (startTs != null) {
+                        final dt = startTs.toDate().toLocal();
+                        dateStr =
+                            '${dt.day.toString().padLeft(2,'0')}/${dt.month.toString().padLeft(2,'0')}/${dt.year}';
+                      }
+
+                      return InkWell(
+                        onTap: () {
+                          // يمكن إضافة تفاصيل الفعالية هنا
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.right,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                    const SizedBox(height: 4),
+                                    Text(dateStr,
+                                        style: const TextStyle(color: Colors.grey)),
+                                    const SizedBox(height: 2),
+                                    Text(location,
+                                        style: const TextStyle(color: Colors.black54)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                );
+              },
             ),
-            /*ListTile(
-              leading: const Icon(Icons.forum),
-                  title: const Text('المنتدى'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ForumScreen())),
-            ),*/
-            ListTile(
-              leading: const Icon(Icons.home_work),
-                  title: const Text('السكنات'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HousingScreen())),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-                  title: const Text('الإعدادات'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen())),
-            ),
-            /*ListTile(
-              leading: const Icon(Icons.history),
-                  title: const Text('مسيرة التجمع'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TimelineScreen())),
-            ),*/
           ],
-        ),
-      ),
-      backgroundColor: const Color(0xFF151C26),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.home, size: 96, color: Color(0xFF4B2B1B)),
-              const SizedBox(height: 16),
-                  const Text('SOTKonya', style: TextStyle(color: Colors.white, fontSize: 20), textAlign: TextAlign.right),
-              const SizedBox(height: 8),
-                  const Text('مرحباً بك في التطبيق', style: TextStyle(color: Colors.white70), textAlign: TextAlign.center),
-            ],
-          ),
         ),
       ),
     );

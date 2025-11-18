@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 // localization removed - app is fixed to Arabic
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/content_service.dart';
@@ -133,4 +133,4 @@ class _EventCard extends StatelessWidget {
       ),
     );
   }
-}
+}*/

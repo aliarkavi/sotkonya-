@@ -53,7 +53,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               // ---------------- Title ----------------
               const Text(
                 'دخول الإداريين',
-                style: TextStyle( color: Color.fromARGB(255, 0, 9, 15),
+                style: TextStyle( color: Color(0xFF151C26),
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
