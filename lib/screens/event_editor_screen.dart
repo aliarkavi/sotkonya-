@@ -2,20 +2,29 @@ import 'package:flutter/material.dart';
 import '../services/content_service.dart';
 
 class EventEditorScreen extends StatefulWidget {
+  const EventEditorScreen({super.key, this.docId, this.initialData});
+
   final String? docId;
   final Map<String, dynamic>? initialData;
-  const EventEditorScreen({super.key, this.docId, this.initialData});
 
   @override
   State<EventEditorScreen> createState() => _EventEditorScreenState();
 }
 
 class _EventEditorScreenState extends State<EventEditorScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _title = TextEditingController();
   final TextEditingController _description = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _location = TextEditingController();
   bool _saving = false;
+  final TextEditingController _title = TextEditingController();
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _description.dispose();
+    _location.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -25,14 +34,6 @@ class _EventEditorScreenState extends State<EventEditorScreen> {
       _description.text = widget.initialData!['description'] ?? '';
       _location.text = widget.initialData!['location'] ?? '';
     }
-  }
-
-  @override
-  void dispose() {
-    _title.dispose();
-    _description.dispose();
-    _location.dispose();
-    super.dispose();
   }
 
   Future<void> _save() async {

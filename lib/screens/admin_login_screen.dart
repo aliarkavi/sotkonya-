@@ -78,7 +78,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                   children: [
                     _field(
                       style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-                      label: "معرّف المدير",
+                      label: "اسم المستخدم أو البريد الإلكتروني",
                       controller: adminIdController,
                       isPassword: false,
                     ),
@@ -153,11 +153,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       controller: controller,
       obscureText: isPassword,
       textAlign: TextAlign.right,
+      style: style,
       decoration: InputDecoration(
         hintText: label,
+        hintStyle: style, 
         hintTextDirection: TextDirection.rtl,
         filled: true,
-        fillColor: const Color(0xFFF5F5F5),
+        fillColor: const Color.fromARGB(255, 245, 246, 246),
         contentPadding:
             const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         border: OutlineInputBorder(

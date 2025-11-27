@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'news_screen.dart';
 
 
@@ -48,3 +48,4 @@ class VisitorScreen extends StatelessWidget {
     );
   }
 }
+*/

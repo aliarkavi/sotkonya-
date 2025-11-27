@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'register_screen.dart';
 
 class ProtectedScreen extends StatelessWidget {
@@ -44,3 +44,4 @@ class ProtectedScreen extends StatelessWidget {
     );
   }
 }
+*/

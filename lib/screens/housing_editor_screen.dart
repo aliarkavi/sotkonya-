@@ -8,20 +8,29 @@ import '../models/housing_model.dart';
 import '../services/housing_service.dart';
 
 class HousingEditorScreen extends StatefulWidget {
-  final Housing? housing;
   const HousingEditorScreen({super.key, this.housing});
 
+  final Housing? housing;
+
   @override
-  State<HousingEditorScreen> createState() => _HousingEditorScreenState();
+ State<HousingEditorScreen> createState() => _HousingEditorScreenState();
 }
 
 class _HousingEditorScreenState extends State<HousingEditorScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   final _mapCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
   File? _pickedFile;
   bool _saving = false;
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _descCtrl.dispose();
+    _mapCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -31,14 +40,6 @@ class _HousingEditorScreenState extends State<HousingEditorScreen> {
       _descCtrl.text = widget.housing!.description;
       _mapCtrl.text = widget.housing!.mapUrl;
     }
-  }
-
-  @override
-  void dispose() {
-    _nameCtrl.dispose();
-    _descCtrl.dispose();
-    _mapCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _pickImage() async {
