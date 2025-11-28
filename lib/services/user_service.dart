@@ -1,36 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/user_model.dart';
+import 'package:sotkonya/model/app_user.dart';
+
 
 class UserService {
-  final CollectionReference users = FirebaseFirestore.instance.collection('users');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // إنشاء مستخدم جديد
   Future<void> createUser(AppUser user) async {
-    await users.doc(user.id).set(user.toMap());
+    await _firestore.collection('users').doc(user.id).set(user.toMap());
   }
 
-  Future<AppUser?> getUser(String id) async {
-    final doc = await users.doc(id).get();
-    if (doc.exists) {
-      return AppUser.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-    }
-    return null;
-  }
-
+  // تحديث بيانات مستخدم
   Future<void> updateUser(AppUser user) async {
-    await users.doc(user.id).update(user.toMap());
+    await _firestore.collection('users').doc(user.id).update(user.toMap());
   }
 
-  Future<void> deleteUser(String id) async {
-    await users.doc(id).delete();
-  }
-
-  /// Set a user's role (e.g., 'admin', 'moderator:news', 'user', 'banned')
-  Future<void> updateUserRole(String id, String role) async {
-    await users.doc(id).update({'role': role});
-  }
-
-  Future<List<AppUser>> getAllUsers() async {
-    final snapshot = await users.get();
-    return snapshot.docs.map((doc) => AppUser.fromMap(doc.id, doc.data() as Map<String, dynamic>)).toList();
+  // الحصول على بيانات مستخدم
+  Future<AppUser?> getUser(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    if (!doc.exists) return null;
+    return AppUser.fromMap(doc.data()!);
   }
 }
+  

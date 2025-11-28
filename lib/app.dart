@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'screens/splash_screen.dart';
+import 'package:sotkonya/screens/authentication/auth_screen.dart';
+
 
 
 
@@ -38,7 +39,7 @@ class SOTKonyaApp extends StatelessWidget {
               child: child ?? const SizedBox.shrink(),
             );
           },
-          home: const SplashScreen(),
+          home: const AuthScreen(),
         );
   }
 }
