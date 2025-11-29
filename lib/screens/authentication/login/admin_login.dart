@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sotkonya/navigation_menu.dart';
 
+import '../../../providers/auth_provider.dart';
 import '../../../widgets/gradient_button.dart';
 import '../../../widgets/text_field.dart';
 
@@ -19,78 +21,77 @@ class AdminLoginScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 30),
+
                   Container(
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
                         colors: [
                           Color(0xFF006db7),
                           Color(0xFF006db7),
-
                           Color(0xFF00b39f),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(55),
+                      borderRadius: BorderRadius.circular(50),
                     ),
-                    child: Center(
-                      child: Icon(
-                        Icons.shield_outlined,
-                        color: Colors.white,
-                        size: 30,
-                      ),
+                    child: const Center(
+                      child: Icon(Icons.shield_outlined,
+                          color: Colors.white, size: 30),
                     ),
                   ),
 
-                  SizedBox(height: 20),
-
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'دخول الإداريين',
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                      fontSize: 18,
                       color: Color(0xFF00b39f),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 5),
-                  Text(
+                  const SizedBox(height: 5),
+                  const Text(
                     'لوحة التحكم الإدارية',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.black,
-                    ),
+                    style: TextStyle(fontSize: 16),
                   ),
-                  //
-                  SizedBox(height: 20),
-                  CustomTextField(label: "معرّف المدير"),
-                  SizedBox(height: 15),
-                  CustomTextField(label: "كلمة المرور"),
 
-                  //
-                  SizedBox(height: 15),
+                  const SizedBox(height: 25),
+
+                  CustomTextField(label: "معرّف المدير"),
+                  const SizedBox(height: 15),
+
+                  CustomTextField(label: "كلمة المرور", obscureText: true),
+                  const SizedBox(height: 20),
+
                   GradientButton(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NavigationMenu()),
-                    ),
+                    onTap: () async {
+                      /// هنا نفعل وضع الأدمن
+                      Provider.of<AuthProvider>(context, listen: false)
+                          .setAdmin(true);
+
+                      /// ثم ندخل لوحة الإدارة
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NavigationMenu(),
+                        ),
+                      );
+                    },
                     text: "تسجيل دخول",
-                    icon: Icons.clear,
+                    icon: Icons.admin_panel_settings,
                     iconSize: 0,
                     colors: [
                       Color(0xFF006db7),
                       Color(0xFF006db7),
-                      // Color(0xFF00b39f),
                     ],
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  const Divider(),
 
-                  Divider(),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text("← العودة لتسجيل دخول الطلاب"),

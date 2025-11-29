@@ -7,10 +7,16 @@ class NewsItemCard extends StatelessWidget {
     super.key,
     required this.news,
     required this.onTap,
+    required this.isAdmin,
+    this.onEdit,
+    this.onDelete,
   });
 
   final NewsItem news;
   final VoidCallback onTap;
+  final bool isAdmin;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +33,7 @@ class NewsItemCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-                // ================================
-                // 🔥 صورة الخبر إذا موجودة
-                // 🔥 وإلا أظهر الأيقونة القديمة
-                // ================================
+                // صورة الخبر أو أيقونة
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: news.imageUrl.isNotEmpty
@@ -58,9 +60,7 @@ class NewsItemCard extends StatelessWidget {
 
                 const SizedBox(width: 12),
 
-                // ================================
-                // العنوان والملخص
-                // ================================
+                // عنوان + ملخص
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,9 +73,7 @@ class NewsItemCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-
                       const SizedBox(height: 4),
-
                       Text(
                         news.subtitle,
                         style: const TextStyle(
@@ -86,25 +84,36 @@ class NewsItemCard extends StatelessWidget {
                     ],
                   ),
                 ),
+
+                // أزرار الإدارة
+                if (isAdmin)
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: onEdit,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: onDelete,
+                      ),
+                    ],
+                  ),
               ],
             ),
 
             const SizedBox(height: 12),
 
-            // ================================
-            // التاريخ + زر "اقرأ المزيد"
-            // ================================
+            // التاريخ + اقرأ المزيد
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   Text(
                     "${news.createdAt.day}/${news.createdAt.month}/${news.createdAt.year}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
-
                   TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: const Color(0xFF006db7),

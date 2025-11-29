@@ -5,6 +5,7 @@ class NewsService {
   final CollectionReference newsCollection =
       FirebaseFirestore.instance.collection('news');
 
+  // جلب الأخبار
   Future<List<NewsItem>> getNews() async {
     final snapshot = await newsCollection
         .orderBy("createdAt", descending: true)
@@ -14,5 +15,20 @@ class NewsService {
       final data = doc.data() as Map<String, dynamic>;
       return NewsItem.fromMap(doc.id, data);
     }).toList();
+  }
+
+  // إضافة خبر جديد
+  Future<void> addNews(NewsItem item) async {
+    await newsCollection.doc(item.id).set(item.toMap());
+  }
+
+  // تعديل خبر موجود
+  Future<void> updateNews(NewsItem item) async {
+    await newsCollection.doc(item.id).update(item.toMap());
+  }
+
+  // حذف خبر
+  Future<void> deleteNews(String id) async {
+    await newsCollection.doc(id).delete();
   }
 }

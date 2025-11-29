@@ -31,7 +31,7 @@ class AuthScreen extends StatelessWidget {
   ),
   child: ClipOval(
     child: Image.asset(
-      'assets/logo.png', // ضع اسم الصورة هنا
+      'assets/images/logo.png', // ضع اسم الصورة هنا
       fit: BoxFit.cover,
     ),
   ),

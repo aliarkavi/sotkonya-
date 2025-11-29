@@ -2,14 +2,21 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/notification_item.dart';
+import 'package:sotkonya/screens/home/widgets/home_events_card.dart';
+
+
 import '../../providers/auth_provider.dart';
 import '../../providers/news_provider.dart';
+import '../../providers/event_provider.dart';
+
 import '../../widgets/layouts/grid_layout.dart';
 import '../../widgets/section_heading.dart';
+
 import '../news/news_screen.dart';
+import '../event/event_screen.dart';
+
 import 'widgets/home_news_item.dart';
-import 'widgets/notifications_card.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,36 +29,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     Provider.of<NewsProvider>(context, listen: false).fetchNews();
-    
+    Provider.of<EventProvider>(context, listen: false).fetchEvents();
   }
 
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context);
+    final eventProvider = Provider.of<EventProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
     final latestNews = newsProvider.news.take(2).toList();
+    final latestEvents = eventProvider.events.take(2).toList();
 
     final userName = authProvider.appUser?.name ?? "مستخدم";
 
-    final notifications = [
-      NotificationItem(
-        title: "فعالية جديدة: ملتقى التوظيف",
-        subtitle: "اليوم الساعة 2:00 مساءً",
-        dotColor: Colors.blue,
-      ),
-      NotificationItem(
-        title: "إعلان سكن: البحث عن زميل غرفة",
-        subtitle: "منذ ساعتين",
-        dotColor: Colors.green,
-      ),
-      NotificationItem(
-        title: "خبر: تحديث مواعيد المكتبة",
-        subtitle: "أمس",
-        dotColor: Colors.red,
-      ),
-    ];
 
     return Scaffold(
       body: SafeArea(
@@ -60,66 +53,109 @@ class _HomeScreenState extends State<HomeScreen> {
             padding:
                 const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // -------------------------------
                 // هيدر الترحيب
+                // -------------------------------
                 Container(
-  padding: const EdgeInsets.all(17.0),
-  height: 150,
-  width: double.infinity,
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(20),
-    image: DecorationImage(
-      image: AssetImage("assets/ustlider.png"), // ضع صورتك هنا
-      fit: BoxFit.cover,
-    ),
-  ),
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Align(
-        alignment: Alignment.topRight,
-        child: Icon(Icons.notifications_none_outlined,
-            color: Colors.white, size: 30),
-      ),
-      const Spacer(),
-      Text("مرحبًا،",
-          style: TextStyle(color: Colors.white, fontSize: 16)),
-      Text("$userName",
-          style: TextStyle(color: Colors.white, fontSize: 20)),
-    ],
-  ),
-),
+                  height: 150,
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(17),
+                  decoration: BoxDecoration(
+                    image: const DecorationImage(
+                      image: AssetImage("assets/images/ustlider.png"),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Align(
+                        alignment: Alignment.topRight,
+                        child: Icon(Icons.notifications_none_outlined,
+                            color: Colors.white, size: 30),
+                      ),
+                      const Spacer(),
+                      const Text(
+                        "مرحبًا،",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 20),
 
-                // الأقسام الرئيسية
-                SectionHeading(title: 'آخر الأخبار'),
-                const SizedBox(height: 5.0),
+                // -------------------------------
+                // آخر الأخبار
+                // -------------------------------
+                const SectionHeading(title: "آخر الأخبار"),
+                const SizedBox(height: 5),
 
                 GridLayout(
                   itemCount: latestNews.length,
                   crossAxisCount: 1,
                   mainAxisExtent: 145,
-                  itemBuilder: (context, index) {
+                  itemBuilder: (_, index) {
                     final item = latestNews[index];
                     return HomeNewsItem(
-                      onTap: () {
-                        Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => const NewsScreen()));
-                      },
                       title: item.title,
                       subtitle: item.subtitle,
                       imageUrl: item.imageUrl,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const NewsScreen()),
+                        );
+                      },
                     );
                   },
                 ),
 
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 20),
 
-                SectionHeading(title: 'آخر النشاطات'),
-                const SizedBox(height: 5.0),
+                // -------------------------------
+                // أحدث الفعاليات
+                // -------------------------------
+                const SectionHeading(title: "أحدث الفعاليات"),
+                const SizedBox(height: 5),
 
-                NotificationsCard(items: notifications),
+                GridLayout(
+                  itemCount: latestEvents.length,
+                  crossAxisCount: 1,
+                  mainAxisExtent: 145,
+                  itemBuilder: (_, index) {
+                    final event = latestEvents[index];
+                    return HomeEventsItem(
+                      title: event.title,
+                      subtitle: event.location,
+                      imageUrl: event.imageUrl, // صورة الفعالية إن وجدت
+                      fallbackIcon: Icons.event, // أيقونة بديلة
+                      color: Colors.orange,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const EventScreen()),
+                        );
+                      }, items: latestEvents,
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // -------------------------------
+                // النشاطات
+                
               ],
             ),
           ),

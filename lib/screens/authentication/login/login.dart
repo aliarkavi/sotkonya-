@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sotkonya/navigation_menu.dart';
+import 'package:sotkonya/screens/authentication/login/admin_login.dart';
 
 import '../../../providers/auth_provider.dart';
 import '../../../widgets/gradient_button.dart';
 import '../../../widgets/text_field.dart';
 import '../signup/signup.dart';
-import 'admin_login.dart';
+ 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -78,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 25),
 
-                  // EMAIL / USERNAME
+                  // EMAIL OR USERNAME
                   CustomTextField(
                     label: "اسم المستخدم او البريد الإلكتروني",
                     controller: emailOrUserController,
@@ -132,10 +133,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // LOGIN BUTTON
                   GradientButton(
-                    text: authProvider.loading ? "جاري تسجيل الدخول..." : "تسجيل دخول",
+                    text: authProvider.loading
+                        ? "جاري تسجيل الدخول..."
+                        : "تسجيل دخول",
                     icon: Icons.clear,
                     iconSize: 0,
                     onTap: () async {
+                      // 🔥 مهم جداً:
+                      // أي تسجيل دخول من هذه الصفحة → مستخدم عادي
+                      Provider.of<AuthProvider>(context, listen: false)
+                          .setAdmin(false);
+
                       await authProvider.login(
                         emailOrUserController.text.trim(),
                         passwordController.text.trim(),
@@ -160,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  // SIGNUP
+                  // SIGNUP LINK
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -178,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Divider(),
 
-                  // ADMIN LOGIN
+                  // ADMIN LOGIN BUTTON
                   TextButton(
                     onPressed: () => Navigator.push(
                       context,

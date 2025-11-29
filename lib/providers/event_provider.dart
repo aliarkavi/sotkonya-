@@ -1,4 +1,3 @@
-// lib/providers/event_provider.dart
 import 'package:flutter/material.dart';
 import 'package:sotkonya/model/event_item.dart';
 import 'package:sotkonya/services/event_service.dart';

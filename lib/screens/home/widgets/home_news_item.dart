@@ -7,16 +7,20 @@ class HomeNewsItem extends StatelessWidget {
     required this.subtitle,
     required this.imageUrl,
     required this.onTap,
+    this.meta,
   });
 
   final String title;
   final String subtitle;
   final String imageUrl;
   final VoidCallback? onTap;
+  final String? meta;
 
   @override
   Widget build(BuildContext context) {
     final contentHeight = 100.0;
+    final metaText =
+        meta ?? DateTime.now().toString().substring(0, 10); // fallback date
 
     return Container(
       decoration: BoxDecoration(
@@ -55,7 +59,7 @@ class HomeNewsItem extends StatelessWidget {
                             fit: BoxFit.cover,
                           )
                         : const DecorationImage(
-                            image: AssetImage('assets/img/BG.png'),
+                            image: AssetImage(''),
                             fit: BoxFit.cover,
                           ),
                   ),
@@ -99,7 +103,7 @@ class HomeNewsItem extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              DateTime.now().toString().substring(0, 10),
+                              metaText,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
