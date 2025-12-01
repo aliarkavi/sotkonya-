@@ -15,9 +15,26 @@ class EventProvider extends ChangeNotifier {
     _loading = true;
     notifyListeners();
 
-    _events = await _service.getEvents();
+    try {
+      _events = await _service.getEvents();
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
+  }
 
-    _loading = false;
-    notifyListeners();
+  Future<void> addEvent(EventItem item) async {
+    await _service.addEvent(item);
+    await fetchEvents();
+  }
+
+  Future<void> updateEvent(EventItem item) async {
+    await _service.updateEvent(item);
+    await fetchEvents();
+  }
+
+  Future<void> deleteEvent(String id) async {
+    await _service.deleteEvent(id);
+    await fetchEvents();
   }
 }

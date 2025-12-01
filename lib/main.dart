@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/news_provider.dart';
 import 'providers/event_provider.dart';
+import 'providers/administration_provider.dart';
+import 'providers/yurt_provider.dart';
+import 'providers/settings_provider.dart';
 
 import 'app.dart';
 
@@ -23,6 +26,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
+        ChangeNotifierProvider(create: (_) => AdministrationProvider()),
+        ChangeNotifierProvider(create: (_) => YurtProvider()),
+         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: const SOTKonyaApp(),
     ),

@@ -52,9 +52,9 @@ class EventItem {
 
   String? get mapUrl => null;
 
-  get dateString => null;
+  String get dateString => formattedDate;
 
-  String? get date => null;
+  String get date => formattedDate;
 
   Map<String, dynamic> toMap() {
     return {

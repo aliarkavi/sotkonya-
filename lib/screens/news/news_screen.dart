@@ -9,17 +9,32 @@ import 'widgets/news_item_card.dart';
 import 'add_news_screen.dart';
 import 'edit_news_screen.dart';
 
-class NewsScreen extends StatelessWidget {
+class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
+
+  @override
+  State<NewsScreen> createState() => _NewsScreenState();
+}
+
+class _NewsScreenState extends State<NewsScreen> {
+  bool _initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+      if (newsProvider.news.isEmpty && !newsProvider.loading) {
+        newsProvider.fetchNews();
+      }
+      _initialized = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context);
     final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
-
-    if (newsProvider.news.isEmpty && !newsProvider.loading) {
-      newsProvider.fetchNews();
-    }
 
     return BasePageLayout(
       title: "الأخبار",
@@ -44,14 +59,12 @@ class NewsScreen extends StatelessWidget {
                       },
                       icon: const Icon(Icons.add, color: Colors.white),
                       label: const Text(
-                        "إضافة خبر",
+                        "إضافة خبر جديد",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
-
                 const SizedBox(height: 16),
-
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -85,7 +98,8 @@ class NewsScreen extends StatelessWidget {
                           builder: (ctx) => AlertDialog(
                             title: const Text("حذف الخبر"),
                             content: const Text(
-                                "هل أنت متأكد أنك تريد حذف هذا الخبر؟"),
+                              "هل أنت متأكد من حذف هذا الخبر؟ لا يمكن التراجع بعد الحذف.",
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () =>
@@ -116,3 +130,4 @@ class NewsScreen extends StatelessWidget {
     );
   }
 }
+

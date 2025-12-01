@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../model/news_item.dart';
+import 'news_item.dart';
 
 class NewsDetailsScreen extends StatelessWidget {
   final NewsItem news;
@@ -8,22 +8,23 @@ class NewsDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Color(0xFF006db7);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("تفاصيل الخبر"),
+        backgroundColor: primaryColor,
+        title: const Text("تفاصيل الخبر"),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
-            // صورة الخبر
             if (news.imageUrl.isNotEmpty)
               ClipRRect(
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
                 ),
                 child: Image.network(
                   news.imageUrl,
@@ -32,55 +33,79 @@ class NewsDetailsScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-
             const SizedBox(height: 20),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-
                 children: [
-
-                  // العنوان
                   Text(
                     news.title,
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF006db7),
+                      color: primaryColor,
                     ),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  // التاريخ
-                  Text(
-                    "تاريخ النشر: ${news.createdAt.day}/${news.createdAt.month}/${news.createdAt.year}",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
+                  if (news.subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      news.subtitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
                     ),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 14,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${news.createdAt.day}/${news.createdAt.month}/${news.createdAt.year}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-
                   const SizedBox(height: 20),
-
-                  // المحتوى
-                  Text(
-                    news.content,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.6,
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      news.content,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
-
-            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 }
+

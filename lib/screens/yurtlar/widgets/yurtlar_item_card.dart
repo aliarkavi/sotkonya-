@@ -13,6 +13,9 @@ class YurtlarItemCard extends StatelessWidget {
     required this.iconData,
     required this.color,
     required this.onTap,
+    this.isAdmin = false,
+    this.onEdit,
+    this.onDelete,
   });
 
   final String title, durum;
@@ -20,6 +23,9 @@ class YurtlarItemCard extends StatelessWidget {
   final IconData iconData;
   final Color color;
   final VoidCallback onTap;
+  final bool isAdmin;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +54,19 @@ class YurtlarItemCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          title,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Text(
+                            title,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
-                          // margin: EdgeInsets.only(left: 6),
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
                           ),
@@ -69,13 +76,29 @@ class YurtlarItemCard extends StatelessWidget {
                           ),
                           child: Text(
                             durum,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
+                        if (isAdmin)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.blue),
+                                onPressed: onEdit,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.red),
+                                onPressed: onDelete,
+                              ),
+                            ],
+                          ),
                       ],
                     ),
 

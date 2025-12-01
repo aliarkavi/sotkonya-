@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sotkonya/screens/home/widgets/home_events_card.dart';
 
-
 import '../../providers/auth_provider.dart';
 import '../../providers/news_provider.dart';
 import '../../providers/event_provider.dart';
@@ -16,7 +15,6 @@ import '../news/news_screen.dart';
 import '../event/event_screen.dart';
 
 import 'widgets/home_news_item.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,8 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final latestNews = newsProvider.news.take(2).toList();
     final latestEvents = eventProvider.events.take(2).toList();
 
-    final userName = authProvider.appUser?.name ?? "مستخدم";
-
+    final userName = authProvider.appUser?.name ?? "زائر";
 
     return Scaffold(
       body: SafeArea(
@@ -55,9 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // -------------------------------
-                // هيدر الترحيب
-                // -------------------------------
+                // الهيدر العلوي
                 Container(
                   height: 150,
                   width: double.infinity,
@@ -74,12 +69,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Align(
                         alignment: Alignment.topRight,
-                        child: Icon(Icons.notifications_none_outlined,
-                            color: Colors.white, size: 30),
+                        child: Icon(
+                          Icons.notifications_none_outlined,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ),
                       const Spacer(),
                       const Text(
-                        "مرحبًا،",
+                        "مرحباً بك",
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                       Text(
@@ -95,10 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 20),
 
-                // -------------------------------
-                // آخر الأخبار
-                // -------------------------------
-                const SectionHeading(title: "آخر الأخبار"),
+                // الأخبار الأخيرة
+                const SectionHeading(title: "أحدث الأخبار"),
                 const SizedBox(height: 5),
 
                 GridLayout(
@@ -114,7 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const NewsScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const NewsScreen(),
+                          ),
                         );
                       },
                     );
@@ -123,9 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 20),
 
-                // -------------------------------
-                // أحدث الفعاليات
-                // -------------------------------
+                // الفعاليات القادمة
                 const SectionHeading(title: "أحدث الفعاليات"),
                 const SizedBox(height: 5),
 
@@ -138,24 +134,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     return HomeEventsItem(
                       title: event.title,
                       subtitle: event.location,
-                      imageUrl: event.imageUrl, // صورة الفعالية إن وجدت
-                      fallbackIcon: Icons.event, // أيقونة بديلة
+                      imageUrl: event.imageUrl,
+                      fallbackIcon: Icons.event,
                       color: Colors.orange,
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const EventScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const EventScreen(),
+                          ),
                         );
-                      }, items: latestEvents,
+                      },
                     );
                   },
                 ),
 
                 const SizedBox(height: 20),
-
-                // -------------------------------
-                // النشاطات
-                
               ],
             ),
           ),
@@ -164,3 +158,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

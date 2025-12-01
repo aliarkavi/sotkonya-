@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sotkonya/screens/news/news_screen.dart';
 
-import 'screens/administration/administration_screen.dart';
-import 'screens/event/event_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/news/news_screen.dart';
+import 'screens/event/event_screen.dart';
 import 'screens/yurtlar/yurtlar_screen.dart';
+import 'screens/administration/administration_screen.dart';
+import 'screens/settings/settings_screen.dart';
 
 class NavigationMenu extends StatefulWidget {
   const NavigationMenu({super.key});
@@ -22,8 +23,49 @@ class _NavigationMenuState extends State<NavigationMenu> {
     EventScreen(),
     YurtlarScreen(),
     AdministrationScreen(),
-    Center(child: Text("الإعدادات")),
+    SettingsScreen(),
   ];
+
+  BottomNavigationBarItem _buildNavItem({
+    required int index,
+    required IconData icon,
+    required String label,
+  }) {
+    final bool isSelected = currentIndex == index;
+
+    final Color activeColor = Colors.blue;
+    final Color inactiveColor = Colors.grey.shade500;
+
+    return BottomNavigationBarItem(
+      label: '',
+      icon: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.shade50 : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 22,
+              color: isSelected ? activeColor : inactiveColor,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? activeColor : inactiveColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,45 +136,5 @@ class _NavigationMenuState extends State<NavigationMenu> {
       ),
     );
   }
-
-  BottomNavigationBarItem _buildNavItem({
-    required int index,
-    required IconData icon,
-    required String label,
-  }) {
-    final bool isSelected = currentIndex == index;
-
-    final Color activeColor = Colors.blue;
-    final Color inactiveColor = Colors.grey.shade500;
-
-    return BottomNavigationBarItem(
-      label: '',
-      icon: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue.shade50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 22,
-              color: isSelected ? activeColor : inactiveColor,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? activeColor : inactiveColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
+

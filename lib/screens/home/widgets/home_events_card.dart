@@ -16,7 +16,7 @@ class HomeEventsItem extends StatelessWidget {
     required this.onTap,
     required this.color,
     this.imageUrl,
-    this.fallbackIcon = Icons.event, required List<EventItem> items,
+    this.fallbackIcon = Icons.event,
   });
 
   @override

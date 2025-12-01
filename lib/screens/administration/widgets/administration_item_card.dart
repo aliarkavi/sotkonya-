@@ -11,6 +11,9 @@ class AdministrationItemCard extends StatelessWidget {
     required this.iconData,
     required this.color,
     required this.onTap,
+    this.isAdmin = false,
+    this.onEdit,
+    this.onDelete,
   });
 
   final String title;
@@ -18,6 +21,9 @@ class AdministrationItemCard extends StatelessWidget {
   final IconData iconData;
   final Color color;
   final VoidCallback onTap;
+  final bool isAdmin;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +43,8 @@ class AdministrationItemCard extends StatelessWidget {
                   color: color,
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: Text(
-                  "م ح",
+                child: const Text(
+                  "إد",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -46,58 +52,86 @@ class AdministrationItemCard extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                job,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                aboutHim,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (isAdmin)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.blue),
+                                onPressed: onEdit,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.red),
+                                onPressed: onDelete,
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
-
-                    const SizedBox(height: 4),
-
-                    Text(job, style: TextStyle(fontSize: 12)),
-                    const SizedBox(height: 8),
-                    Text(aboutHim, style: TextStyle(fontSize: 12)),
                   ],
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.only(right: 50),
             child: Row(
-              // mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Spacer(),
                 Expanded(
                   child: TextButton.icon(
                     style: TextButton.styleFrom(
                       backgroundColor: color,
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 5,
                       ),
-                      minimumSize: Size(50, 20),
+                      minimumSize: const Size(50, 20),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      // alignment: Alignment.centerLeft,
                     ),
-                    onPressed: () {},
-                    icon: Icon(
+                    onPressed: onTap,
+                    icon: const Icon(
                       Icons.email_outlined,
                       color: Colors.white,
                       size: 18,
                     ),
-                    label: Text(
-                      "تواصل عبر البريد",
+                    label: const Text(
+                      "مراسلة العضو",
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -106,18 +140,16 @@ class AdministrationItemCard extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 OutlinedButton(
                   style: IconButton.styleFrom(
-                    // backgroundColor: color,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    minimumSize: Size(50, 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 5),
+                    minimumSize: const Size(50, 20),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-
                   onPressed: () {},
-                  child: Icon(
+                  child: const Icon(
                     Icons.phone_outlined,
                     color: Colors.black,
                     size: 20,
@@ -131,3 +163,4 @@ class AdministrationItemCard extends StatelessWidget {
     );
   }
 }
+
