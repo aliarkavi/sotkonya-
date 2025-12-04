@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sotkonya/model/news_item.dart';
+import 'package:sotkonya/model/news_model.dart';
 import 'package:sotkonya/services/news_service.dart';
 
 class NewsProvider extends ChangeNotifier {
   final NewsService _service = NewsService();
 
-  List<NewsItem> _news = [];
-  List<NewsItem> get news => _news;
+  List<NewsModel> _news = [];
+  List<NewsModel> get news => _news;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -23,13 +23,13 @@ class NewsProvider extends ChangeNotifier {
   }
 
   // إضافة خبر
-  Future<void> addNews(NewsItem item) async {
+  Future<void> addNews(NewsModel item) async {
     await _service.addNews(item);
     await fetchNews(); // نعيد التحديث بعد الإضافة
   }
 
   // تعديل خبر
-  Future<void> updateNews(NewsItem item) async {
+  Future<void> updateNews(NewsModel item) async {
     await _service.updateNews(item);
     await fetchNews();
   }

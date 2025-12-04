@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sotkonya/model/event_item.dart';
+
 
 class HomeEventsItem extends StatelessWidget {
   final String title;

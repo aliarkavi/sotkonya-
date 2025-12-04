@@ -1,18 +1,24 @@
+// lib/screens/news/widgets/news_item_card.dart
 import 'package:flutter/material.dart';
-import '../../../model/news_item.dart';
+
+import '../../../model/news_model.dart';
 import '../../../widgets/item_card.dart';
 
 class NewsItemCard extends StatelessWidget {
   const NewsItemCard({
     super.key,
-    required this.news,
+    required this.obj,
+    required this.iconData,
+    required this.color,
     required this.onTap,
-    required this.isAdmin,
+    this.isAdmin = false,
     this.onEdit,
     this.onDelete,
   });
 
-  final NewsItem news;
+  final NewsModel obj;
+  final IconData iconData;
+  final Color color;
   final VoidCallback onTap;
   final bool isAdmin;
   final VoidCallback? onEdit;
@@ -20,8 +26,11 @@ class NewsItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dateString =
+        "${obj.createdAt.day}/${obj.createdAt.month}/${obj.createdAt.year}";
+
     return ItemCard(
-      color: const Color(0xFF006db7),
+      color: color,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -29,16 +38,15 @@ class NewsItemCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // صورة الخبر أو أيقونة
+                // صورة الخبر أو أيقونة بديلة
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: news.imageUrl.isNotEmpty
+                  child: obj.imageUrl.isNotEmpty
                       ? Image.network(
-                          news.imageUrl,
+                          obj.imageUrl,
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,
@@ -47,11 +55,11 @@ class NewsItemCard extends StatelessWidget {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF006db7),
+                            color: color,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(
-                            Icons.article,
+                          child: Icon(
+                            iconData,
                             color: Colors.white,
                             size: 28,
                           ),
@@ -66,7 +74,7 @@ class NewsItemCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        news.title,
+                        obj.title,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 16,
@@ -75,19 +83,21 @@ class NewsItemCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        news.subtitle,
+                        obj.subtitle,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.black54,
+                          color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                // أزرار الإدارة
                 if (isAdmin)
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
@@ -104,23 +114,24 @@ class NewsItemCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            // التاريخ + اقرأ المزيد
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${news.createdAt.day}/${news.createdAt.month}/${news.createdAt.year}",
+                    dateString,
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   TextButton(
                     style: TextButton.styleFrom(
-                      backgroundColor: const Color(0xFF006db7),
+                      backgroundColor: color,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: 10,
+                        vertical: 5,
                       ),
+                      minimumSize: const Size(50, 20),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: onTap,
                     child: const Text(
@@ -128,7 +139,7 @@ class NewsItemCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                        fontSize: 14,
                       ),
                     ),
                   ),

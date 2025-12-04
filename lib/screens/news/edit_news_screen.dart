@@ -1,13 +1,15 @@
+// lib/screens/news/edit_news_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sotkonya/model/news_item.dart';
+
+import 'package:sotkonya/model/news_model.dart';
 import 'package:sotkonya/providers/news_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
 class EditNewsScreen extends StatefulWidget {
-  final NewsItem news;
+  final NewsModel news;
   const EditNewsScreen({super.key, required this.news});
 
   @override
@@ -38,8 +40,16 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
     super.initState();
     titleController = TextEditingController(text: widget.news.title);
     subtitleController = TextEditingController(text: widget.news.subtitle);
-    contentController = TextEditingController(text: widget.news.content);
+    contentController = TextEditingController(text: widget.news.details);
     imageUrl = widget.news.imageUrl;
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    subtitleController.dispose();
+    contentController.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,42 +70,45 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(12),
                   image: newImage != null
-                      ? DecorationImage(image: FileImage(newImage!), fit: BoxFit.cover)
-                      : imageUrl!.isNotEmpty
-                          ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
+                      ? DecorationImage(
+                          image: FileImage(newImage!),
+                          fit: BoxFit.cover,
+                        )
+                      : (imageUrl != null && imageUrl!.isNotEmpty)
+                          ? DecorationImage(
+                              image: NetworkImage(imageUrl!),
+                              fit: BoxFit.cover,
+                            )
                           : null,
                 ),
-                child: (newImage == null && imageUrl!.isEmpty)
+                child: (newImage == null && (imageUrl == null || imageUrl!.isEmpty))
                     ? const Center(
-                        child: Icon(Icons.add_a_photo,
-                            size: 40, color: Colors.grey),
+                        child: Icon(
+                          Icons.add_a_photo,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                       )
                     : null,
               ),
             ),
-
             const SizedBox(height: 16),
-
             TextField(
               controller: titleController,
               decoration: const InputDecoration(labelText: "عنوان الخبر"),
             ),
             const SizedBox(height: 12),
-
             TextField(
               controller: subtitleController,
               decoration: const InputDecoration(labelText: "الملخص"),
             ),
             const SizedBox(height: 12),
-
             TextField(
               controller: contentController,
               maxLines: 5,
               decoration: const InputDecoration(labelText: "نص الخبر"),
             ),
-
             const SizedBox(height: 24),
-
             ElevatedButton(
               onPressed: () async {
                 String finalImageUrl = imageUrl ?? "";
@@ -105,17 +118,20 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
                       await ImageUploadService.uploadImage(newImage!);
                 }
 
-                final updated = NewsItem(
-                  id: widget.news.id,
+                final images =
+                    finalImageUrl.isNotEmpty ? <String>[finalImageUrl] : <String>[];
+
+                final updated = widget.news.copyWith(
                   title: titleController.text.trim(),
                   subtitle: subtitleController.text.trim(),
-                  content: contentController.text.trim(),
+                  details: contentController.text.trim(),
                   imageUrl: finalImageUrl,
-                  createdAt: widget.news.createdAt,
+                  images: images,
+                  // createdAt يبقى كما هو
                 );
 
                 await newsProvider.updateNews(updated);
-                Navigator.pop(context);
+                if (mounted) Navigator.pop(context);
               },
               child: const Text("حفظ التعديلات"),
             ),

@@ -1,10 +1,13 @@
+// lib/screens/yurt/yurtlar_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/layouts/base_page_layout.dart';
 import '../../providers/yurt_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../model/yurt_model.dart';
 import 'widgets/yurtlar_item_card.dart';
+import 'widgets/yurt_details_screen.dart';
 import 'add_yurt_screen.dart';
 import 'edit_yurt_screen.dart';
 
@@ -82,17 +85,25 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                         const SizedBox(height: 15),
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      final item = provider.items[index];
+                      final YurtModel item = provider.items[index];
+                      const cardColor = Color(0xFFeb5623);
+
                       return YurtlarItemCard(
-                        title: item.title,
-                        durum: item.status,
-                        personelData: item.personelData,
-                        rentData: item.rentData,
-                        location: item.location,
+                        obj: item,
                         iconData: Icons.article,
-                        color: const Color(0xFFeb5623),
-                        onTap: () {},
+                        color: cardColor,
                         isAdmin: isAdmin,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => YurtDetailsScreen(
+                                color: cardColor,
+                                obj: item,
+                              ),
+                            ),
+                          );
+                        },
                         onEdit: () {
                           Navigator.push(
                             context,
@@ -139,4 +150,3 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
     );
   }
 }
-

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sotkonya/model/yurt_item.dart';
+import 'package:sotkonya/model/yurt_model.dart';
 import 'package:sotkonya/services/yurt_service.dart';
 
 class YurtProvider extends ChangeNotifier {
   final YurtService _service = YurtService();
 
-  List<YurtItem> _items = [];
-  List<YurtItem> get items => _items;
+  List<YurtModel> _items = [];
+  List<YurtModel> get items => _items;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -23,12 +23,12 @@ class YurtProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addYurt(YurtItem item) async {
+  Future<void> addYurt(YurtModel item) async {
     await _service.addYurt(item);
     await fetchYurtlar();
   }
 
-  Future<void> updateYurt(YurtItem item) async {
+  Future<void> updateYurt(YurtModel item) async {
     await _service.updateYurt(item);
     await fetchYurtlar();
   }

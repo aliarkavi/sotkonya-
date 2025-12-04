@@ -1,7 +1,9 @@
+// lib/screens/yurt/add_yurt_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sotkonya/model/yurt_item.dart';
-import 'package:sotkonya/providers/yurt_provider.dart';
+
+import '../../model/yurt_model.dart';
+import '../../providers/yurt_provider.dart';
 
 class AddYurtScreen extends StatefulWidget {
   const AddYurtScreen({super.key});
@@ -12,12 +14,28 @@ class AddYurtScreen extends StatefulWidget {
 
 class _AddYurtScreenState extends State<AddYurtScreen> {
   final TextEditingController titleController = TextEditingController();
-  final TextEditingController statusController = TextEditingController();
+  final TextEditingController durumController = TextEditingController();
   final TextEditingController personelController = TextEditingController();
-  final TextEditingController rentController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController mapUrlController = TextEditingController();
+  final TextEditingController fiyatController = TextEditingController();
+  final TextEditingController konumController = TextEditingController();
+  final TextEditingController konumLinkController = TextEditingController();
+  final TextEditingController telefoneController = TextEditingController();
+  final TextEditingController detailsController = TextEditingController();
+  final TextEditingController imagesController = TextEditingController();
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    durumController.dispose();
+    personelController.dispose();
+    fiyatController.dispose();
+    konumController.dispose();
+    konumLinkController.dispose();
+    telefoneController.dispose();
+    detailsController.dispose();
+    imagesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,47 +55,73 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: statusController,
-              decoration: const InputDecoration(labelText: "الحالة"),
+              controller: durumController,
+              decoration: const InputDecoration(labelText: "الحالة (مثال: متاح)"),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: fiyatController,
+              decoration:
+                  const InputDecoration(labelText: "الإيجار (مثال: 11,000 ليرة شهريًا)"),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: personelController,
-              decoration: const InputDecoration(labelText: "معلومات التواصل"),
+              decoration:
+                  const InputDecoration(labelText: "معلومات التواصل / نوع الغرف"),
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: rentController,
-              decoration: const InputDecoration(labelText: "الإيجار"),
+              controller: konumController,
+              decoration:
+                  const InputDecoration(labelText: "الموقع (وصف نصي، مثال: قرب الحرم)"),
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: locationController,
-              decoration: const InputDecoration(labelText: "الموقع"),
+              controller: konumLinkController,
+              decoration: const InputDecoration(
+                  labelText: "رابط الموقع على الخريطة (Google Maps)"),
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: phoneController,
+              controller: telefoneController,
               decoration: const InputDecoration(labelText: "رقم الهاتف"),
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: mapUrlController,
+              controller: detailsController,
+              maxLines: 3,
               decoration:
-                  const InputDecoration(labelText: "رابط الموقع على الخريطة"),
+                  const InputDecoration(labelText: "نبذة عن السكن / التفاصيل"),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: imagesController,
+              decoration: const InputDecoration(
+                labelText:
+                    "روابط أو مسارات الصور (افصل بين كل رابط بفاصلة , )",
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
-                final item = YurtItem(
+                final images = imagesController.text
+                    .split(',')
+                    .map((e) => e.trim())
+                    .where((e) => e.isNotEmpty)
+                    .toList();
+
+                final item = YurtModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   title: titleController.text.trim(),
-                  status: statusController.text.trim(),
+                  durum: durumController.text.trim(),
+                  fiyat: fiyatController.text.trim(),
                   personelData: personelController.text.trim(),
-                  rentData: rentController.text.trim(),
-                  location: locationController.text.trim(),
-                  phone: phoneController.text.trim(),
-                  mapUrl: mapUrlController.text.trim(),
+                  konum: konumController.text.trim(),
+                  konumLink: konumLinkController.text.trim(),
+                  telefone: telefoneController.text.trim(),
+                  details: detailsController.text.trim(),
+                  images: images,
                 );
 
                 await provider.addYurt(item);
@@ -91,4 +135,3 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
     );
   }
 }
-

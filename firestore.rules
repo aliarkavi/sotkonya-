@@ -2,9 +2,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Public read for content collections; writes restricted to admins
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isGuest() {
+      return request.auth != null
+             && request.auth.token.firebase.sign_in_provider == "anonymous";
+    }
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
     match /news/{doc} {
-      allow read: if true; // allow public reads (change to request.auth != null to restrict)
+      allow read: if true;
       allow create, update, delete: if isAdmin();
     }
 
@@ -14,24 +26,29 @@ service cloud.firestore {
     }
 
     match /forum/{doc} {
-      // Allow authenticated users to create forum posts, but only admins can delete
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && (request.auth.uid == resource.data.authorId || isAdmin());
+      allow create: if isLoggedIn() && !isGuest();
+      allow update: if isLoggedIn()
+                    && !isGuest()
+                    && (request.auth.uid == resource.data.authorId || isAdmin());
       allow delete: if isAdmin();
     }
 
-    // users: users can read their own profile; admins can read all
     match /users/{userId} {
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow read: if isLoggedIn()
+                  && (request.auth.uid == userId || isAdmin())
+                  && !isGuest();
+      allow create: if isLoggedIn()
+                    && !isGuest()
+                    && request.auth.uid == userId;
+      allow update: if isLoggedIn()
+                    && !isGuest()
+                    && (request.auth.uid == userId || isAdmin());
       allow delete: if false;
     }
 
-    // helper function to check custom claim 'admin'
-    function isAdmin() {
-      return request.auth != null && request.auth.token.admin == true;
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -95,9 +95,7 @@ class SettingsScreen extends StatelessWidget {
                     'تسجيل الخروج',
                     style: TextStyle(color: Colors.red),
                   ),
-                  onTap: authProvider.user == null
-                      ? null
-                      : () => authProvider.logout(),
+                  onTap: () => authProvider.logout(),
                 ),
               ],
             ),

@@ -1,8 +1,10 @@
+// lib/screens/news/add_news_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sotkonya/model/news_item.dart';
+
+import 'package:sotkonya/model/news_model.dart';
 import 'package:sotkonya/providers/news_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
@@ -32,6 +34,14 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
   }
 
   @override
+  void dispose() {
+    titleController.dispose();
+    subtitleController.dispose();
+    contentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
 
@@ -43,7 +53,6 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            /// اختيار صورة
             GestureDetector(
               onTap: pickImage,
               child: Container(
@@ -60,56 +69,57 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
                 ),
                 child: selectedImage == null
                     ? const Center(
-                        child: Icon(Icons.add_a_photo,
-                            size: 40, color: Colors.grey),
+                        child: Icon(
+                          Icons.add_a_photo,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
                       )
                     : null,
               ),
             ),
-
             const SizedBox(height: 16),
-
             TextField(
               controller: titleController,
               decoration: const InputDecoration(labelText: "عنوان الخبر"),
             ),
-
             const SizedBox(height: 12),
-
             TextField(
               controller: subtitleController,
               decoration: const InputDecoration(labelText: "الملخص"),
             ),
-
             const SizedBox(height: 12),
-
             TextField(
               controller: contentController,
               maxLines: 5,
               decoration: const InputDecoration(labelText: "نص الخبر"),
             ),
-
             const SizedBox(height: 24),
-
             ElevatedButton(
               onPressed: () async {
                 String imageUrl = "";
 
                 if (selectedImage != null) {
-                  imageUrl = await ImageUploadService.uploadImage(selectedImage!);
+                  imageUrl =
+                      await ImageUploadService.uploadImage(selectedImage!);
                 }
 
-                final item = NewsItem(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                final now = DateTime.now();
+                final images =
+                    imageUrl.isNotEmpty ? <String>[imageUrl] : <String>[];
+
+                final item = NewsModel(
+                  id: now.millisecondsSinceEpoch.toString(),
                   title: titleController.text.trim(),
                   subtitle: subtitleController.text.trim(),
-                  content: contentController.text.trim(),
+                  details: contentController.text.trim(),
                   imageUrl: imageUrl,
-                  createdAt: DateTime.now(),
+                  images: images,
+                  createdAt: now,
                 );
 
                 await newsProvider.addNews(item);
-                Navigator.pop(context);
+                if (mounted) Navigator.pop(context);
               },
               child: const Text("نشر الخبر"),
             ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:sotkonya/screens/authentication/auth_screen.dart';
-
+import 'package:sotkonya/AuthGate.dart';
 class SOTKonyaApp extends StatelessWidget {
   const SOTKonyaApp({super.key});
 
@@ -46,7 +45,7 @@ class SOTKonyaApp extends StatelessWidget {
         );
       },
 
-      home: const AuthScreen(),
+      home: const AuthGate(),
     );
   }
 }
