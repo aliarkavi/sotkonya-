@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sotkonya/model/event_item.dart';
+import 'package:sotkonya/model/event_model.dart';
 import 'package:sotkonya/services/event_service.dart';
 
 class EventProvider extends ChangeNotifier {
   final EventService _service = EventService();
 
-  List<EventItem> _events = [];
-  List<EventItem> get events => _events;
+  List<EventModel> _events = [];
+  List<EventModel> get events => _events;
 
   bool _loading = false;
   bool get loading => _loading;
@@ -23,12 +23,12 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addEvent(EventItem item) async {
+  Future<void> addEvent(EventModel item) async {
     await _service.addEvent(item);
     await fetchEvents();
   }
 
-  Future<void> updateEvent(EventItem item) async {
+  Future<void> updateEvent(EventModel item) async {
     await _service.updateEvent(item);
     await fetchEvents();
   }

@@ -32,6 +32,15 @@ class _PromoSliderState extends State<PromoSlider> {
             },
           ),
           items: widget.images.map((img) {
+            final bool isNetwork =
+                img.startsWith('http://') || img.startsWith('https://');
+
+            Widget buildImage(BoxFit fit) {
+              return isNetwork
+                  ? Image.network(img, fit: fit)
+                  : Image.asset(img, fit: fit);
+            }
+
             return GestureDetector(
               onTap: () {
                 showDialog(
@@ -42,7 +51,7 @@ class _PromoSliderState extends State<PromoSlider> {
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: InteractiveViewer(
-                        child: Image.asset(img, fit: BoxFit.contain),
+                        child: buildImage(BoxFit.contain),
                       ),
                     ),
                   ),
@@ -56,7 +65,7 @@ class _PromoSliderState extends State<PromoSlider> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(img, fit: BoxFit.cover),
+                  child: buildImage(BoxFit.cover),
                 ),
               ),
             );

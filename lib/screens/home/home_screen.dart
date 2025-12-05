@@ -156,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       final event = latestEvents[index];
                       return HomeEventsItem(
                         title: event.title,
-                        subtitle: event.location,
+                        subtitle: event.date,
                         imageUrl: event.imageUrl,
                         fallbackIcon: Icons.event,
                         color: Colors.orange,

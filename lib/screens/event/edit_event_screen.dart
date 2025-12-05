@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sotkonya/model/event_item.dart';
+import 'package:sotkonya/model/event_model.dart';
+
 import 'package:sotkonya/providers/event_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
 class EditEventScreen extends StatefulWidget {
-  final EventItem event;
+  final EventModel event;
   const EditEventScreen({super.key, required this.event});
 
   @override
@@ -194,15 +195,32 @@ class _EditEventScreenState extends State<EditEventScreen> {
                       await ImageUploadService.uploadImage(newImage!);
                 }
 
-                final updated = EventItem(
+                final DateTime sd = startDate;
+                final String dateText =
+                    '${sd.day.toString().padLeft(2, '0')}/${sd.month.toString().padLeft(2, '0')}/${sd.year}';
+                final String timeText =
+                    '${sd.hour.toString().padLeft(2, '0')}:${sd.minute.toString().padLeft(2, '0')}';
+
+                final String location = locationController.text.trim();
+                final String description = descriptionController.text.trim();
+                final String registerUrl = registerUrlController.text.trim();
+                final String websiteUrl = websiteUrlController.text.trim();
+
+                final updated = EventModel(
                   id: widget.event.id,
                   title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  location: locationController.text.trim(),
+                  description: description,
+                  location: location,
                   imageUrl: finalImageUrl,
-                  registerUrl: registerUrlController.text.trim(),
-                  websiteUrl: websiteUrlController.text.trim(),
-                  startDate: startDate,
+                  registerUrl: registerUrl,
+                  websiteUrl: websiteUrl,
+                  startDate: sd,
+                  date: dateText,
+                  time: timeText,
+                  konum: location,
+                  kayitLink: registerUrl,
+                  konumLink: websiteUrl,
+                  details: description,
                 );
 
                 await eventProvider.updateEvent(updated);
@@ -216,4 +234,3 @@ class _EditEventScreenState extends State<EditEventScreen> {
     );
   }
 }
-

@@ -1,30 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../../../model/event_model.dart';
 import '../../../widgets/item_card.dart';
 
 class EventItemCard extends StatelessWidget {
   const EventItemCard({
     super.key,
-    required this.title,
-    required this.date,
-    required this.time,
-    required this.location,
-    required this.iconData,
+    required this.obj,
     required this.color,
     required this.onTap,
-    this.isAdmin = false,
-    this.onEdit,
-    this.onDelete,
   });
 
-  final String title;
-  final String date, time, location;
-  final IconData iconData;
   final Color color;
   final VoidCallback onTap;
-  final bool isAdmin;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
+
+  final EventModel obj;
 
   @override
   Widget build(BuildContext context) {
@@ -45,72 +35,58 @@ class EventItemCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text(
+                        obj.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Icon(Icons.date_range, color: color),
+                          const SizedBox(width: 4),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.date_range, color: color),
-                                    const SizedBox(width: 4),
-                                    Text(date),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.timer_sharp, color: color),
-                                    const SizedBox(width: 4),
-                                    Text(time),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.location_on_outlined,
-                                        color: color),
-                                    const SizedBox(width: 4),
-                                    Text(location),
-                                  ],
-                                ),
-                              ],
+                            child: Text(
+                              obj.date,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (isAdmin)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      color: Colors.blue),
-                                  onPressed: onEdit,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: onDelete,
-                                ),
-                              ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.timer_sharp, color: color),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              obj.time,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.location_on_outlined, color: color),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              obj.konum,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -122,14 +98,13 @@ class EventItemCard extends StatelessWidget {
                   height: 100,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    image: const DecorationImage(
-                      image: AssetImage('assets/img/BG.png'),
+                    image: DecorationImage(
+                      image: AssetImage(obj.images[0]),
                       fit: BoxFit.fill,
                     ),
                     color: color,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(""),
                 ),
               ],
             ),
@@ -144,7 +119,7 @@ class EventItemCard extends StatelessWidget {
                   minimumSize: const Size(50, 20),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: () {},
+                onPressed: onTap,
                 child: const Text(
                   "عرض التفاصيل والتسجيل",
                   style: TextStyle(

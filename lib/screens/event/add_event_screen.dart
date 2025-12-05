@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:sotkonya/model/event_item.dart';
+import 'package:sotkonya/model/event_model.dart';
 import 'package:sotkonya/providers/event_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
@@ -186,15 +186,32 @@ class _AddEventScreenState extends State<AddEventScreen> {
                       await ImageUploadService.uploadImage(selectedImage!);
                 }
 
-                final item = EventItem(
+                final DateTime sd = startDate!;
+                final String dateText =
+                    '${sd.day.toString().padLeft(2, '0')}/${sd.month.toString().padLeft(2, '0')}/${sd.year}';
+                final String timeText =
+                    '${sd.hour.toString().padLeft(2, '0')}:${sd.minute.toString().padLeft(2, '0')}';
+
+                final String location = locationController.text.trim();
+                final String description = descriptionController.text.trim();
+                final String registerUrl = registerUrlController.text.trim();
+                final String websiteUrl = websiteUrlController.text.trim();
+
+                final item = EventModel(
                   id: DateTime.now().millisecondsSinceEpoch.toString(),
                   title: titleController.text.trim(),
-                  description: descriptionController.text.trim(),
-                  location: locationController.text.trim(),
+                  description: description,
+                  location: location,
                   imageUrl: imageUrl,
-                  registerUrl: registerUrlController.text.trim(),
-                  websiteUrl: websiteUrlController.text.trim(),
-                  startDate: startDate!,
+                  registerUrl: registerUrl,
+                  websiteUrl: websiteUrl,
+                  startDate: sd,
+                  date: dateText,
+                  time: timeText,
+                  konum: location,
+                  kayitLink: registerUrl,
+                  konumLink: websiteUrl,
+                  details: description,
                 );
 
                 await eventProvider.addEvent(item);
@@ -208,4 +225,3 @@ class _AddEventScreenState extends State<AddEventScreen> {
     );
   }
 }
-
