@@ -20,25 +20,42 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
   final TextEditingController subtitleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
 
-  File? selectedImage;
+  final List<File> selectedImages = [];
+  final Color primaryColor = const Color(0xFF006db7);
 
-  Future<void> pickImage() async {
+  Future<void> pickImages() async {
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery);
+    final files = await picker.pickMultiImage();
 
-    if (file != null) {
+    if (files.isNotEmpty) {
       setState(() {
-        selectedImage = File(file.path);
+        selectedImages.addAll(files.map((e) => File(e.path)));
       });
     }
   }
 
-  @override
-  void dispose() {
-    titleController.dispose();
-    subtitleController.dispose();
-    contentController.dispose();
-    super.dispose();
+  Widget buildTextField(String label, TextEditingController c, {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: TextField(
+            controller: c,
+            maxLines: maxLines,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -46,85 +63,114 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("إضافة خبر"),
-      ),
-      body: Padding(
+      appBar: AppBar(title: const Text("إضافة خبر")),
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            GestureDetector(
-              onTap: pickImage,
-              child: Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                  image: selectedImage != null
-                      ? DecorationImage(
-                          image: FileImage(selectedImage!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: selectedImage == null
-                    ? const Center(
-                        child: Icon(
-                          Icons.add_a_photo,
-                          size: 40,
-                          color: Colors.grey,
-                        ),
-                      )
-                    : null,
+        children: [
+          // زر إضافة صور
+          GestureDetector(
+            onTap: pickImages,
+            child: Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: selectedImages.isEmpty
+                  ? const Center(
+                      child: Icon(Icons.add_photo_alternate,
+                          size: 40, color: Colors.grey),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.file(selectedImages.first, fit: BoxFit.cover),
+                    ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // عرض كل الصور المختارة
+          if (selectedImages.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: selectedImages
+                  .map((img) => Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(img, width: 90, height: 90, fit: BoxFit.cover),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() => selectedImages.remove(img));
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.red, shape: BoxShape.circle),
+                                padding: const EdgeInsets.all(3),
+                                child: const Icon(Icons.close,
+                                    color: Colors.white, size: 14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ))
+                  .toList(),
+            ),
+
+          const SizedBox(height: 20),
+
+          buildTextField("عنوان الخبر", titleController),
+          const SizedBox(height: 12),
+
+          buildTextField("الملخص", subtitleController),
+          const SizedBox(height: 12),
+
+          buildTextField("نص الخبر", contentController, maxLines: 5),
+          const SizedBox(height: 20),
+
+          // زر نشر
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "عنوان الخبر"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: subtitleController,
-              decoration: const InputDecoration(labelText: "الملخص"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: contentController,
-              maxLines: 5,
-              decoration: const InputDecoration(labelText: "نص الخبر"),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                String imageUrl = "";
+            onPressed: () async {
+              List<String> uploadedImages = [];
 
-                if (selectedImage != null) {
-                  imageUrl =
-                      await ImageUploadService.uploadImage(selectedImage!);
-                }
+              for (var file in selectedImages) {
+                final url = await ImageUploadService.uploadImage(file);
+                uploadedImages.add(url);
+              }
 
-                final now = DateTime.now();
-                final images =
-                    imageUrl.isNotEmpty ? <String>[imageUrl] : <String>[];
+              final now = DateTime.now();
 
-                final item = NewsModel(
-                  id: now.millisecondsSinceEpoch.toString(),
-                  title: titleController.text.trim(),
-                  subtitle: subtitleController.text.trim(),
-                  details: contentController.text.trim(),
-                  imageUrl: imageUrl,
-                  images: images,
-                  createdAt: now,
-                );
+              final item = NewsModel(
+                id: now.millisecondsSinceEpoch.toString(),
+                title: titleController.text.trim(),
+                subtitle: subtitleController.text.trim(),
+                details: contentController.text.trim(),
+                imageUrl: uploadedImages.isNotEmpty ? uploadedImages.first : "",
+                images: uploadedImages,
+                createdAt: now,
+              );
 
-                await newsProvider.addNews(item);
-                if (mounted) Navigator.pop(context);
-              },
-              child: const Text("نشر الخبر"),
-            ),
-          ],
-        ),
+              await newsProvider.addNews(item);
+
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text("نشر الخبر",
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ],
       ),
     );
   }

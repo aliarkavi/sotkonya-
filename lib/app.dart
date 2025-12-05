@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:sotkonya/AuthGate.dart';
+import 'package:sotkonya/auth_gate.dart';
 class SOTKonyaApp extends StatelessWidget {
   const SOTKonyaApp({super.key});
 

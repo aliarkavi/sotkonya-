@@ -21,18 +21,46 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
   late TextEditingController subtitleController;
   late TextEditingController contentController;
 
-  File? newImage;
-  String? imageUrl;
+  List<String> oldImages = [];
+  List<File> newImages = [];
+  final Color primaryColor = const Color(0xFF006db7);
 
-  Future<void> pickImage() async {
+  Future<void> pickImages() async {
     final picker = ImagePicker();
-    final file = await picker.pickImage(source: ImageSource.gallery);
+    final files = await picker.pickMultiImage();
 
-    if (file != null) {
+    if (files.isNotEmpty) {
       setState(() {
-        newImage = File(file.path);
+        newImages.addAll(files.map((e) => File(e.path)));
       });
     }
+  }
+
+  Widget buildField(String label, TextEditingController c,
+      {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 14, color: Colors.black54)),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: TextField(
+            controller: c,
+            maxLines: maxLines,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -41,15 +69,8 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
     titleController = TextEditingController(text: widget.news.title);
     subtitleController = TextEditingController(text: widget.news.subtitle);
     contentController = TextEditingController(text: widget.news.details);
-    imageUrl = widget.news.imageUrl;
-  }
 
-  @override
-  void dispose() {
-    titleController.dispose();
-    subtitleController.dispose();
-    contentController.dispose();
-    super.dispose();
+    oldImages = [...widget.news.images];
   }
 
   @override
@@ -58,85 +79,141 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("تعديل خبر")),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            GestureDetector(
-              onTap: pickImage,
-              child: Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                  image: newImage != null
-                      ? DecorationImage(
-                          image: FileImage(newImage!),
-                          fit: BoxFit.cover,
-                        )
-                      : (imageUrl != null && imageUrl!.isNotEmpty)
-                          ? DecorationImage(
-                              image: NetworkImage(imageUrl!),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                ),
-                child: (newImage == null && (imageUrl == null || imageUrl!.isEmpty))
-                    ? const Center(
-                        child: Icon(
-                          Icons.add_a_photo,
-                          size: 40,
-                          color: Colors.grey,
+        children: [
+          // عرض الصور القديمة
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: oldImages
+                .map((img) => Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(img,
+                              width: 90, height: 90, fit: BoxFit.cover),
                         ),
-                      )
-                    : null,
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                oldImages.remove(img);
+                              });
+                            },
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                  color: Colors.red, shape: BoxShape.circle),
+                              padding: const EdgeInsets.all(3),
+                              child: const Icon(Icons.close,
+                                  color: Colors.white, size: 14),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ))
+                .toList(),
+          ),
+
+          const SizedBox(height: 10),
+
+          // عرض الصور الجديدة المختارة
+          if (newImages.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: newImages
+                  .map((img) => Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(img,
+                                width: 90, height: 90, fit: BoxFit.cover),
+                          ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  newImages.remove(img);
+                                });
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    color: Colors.red, shape: BoxShape.circle),
+                                padding: const EdgeInsets.all(3),
+                                child: const Icon(Icons.close,
+                                    color: Colors.white, size: 14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ))
+                  .toList(),
+            ),
+
+          const SizedBox(height: 12),
+
+          // زر إضافة صور جديدة
+          ElevatedButton.icon(
+            onPressed: pickImages,
+            icon: const Icon(Icons.add_photo_alternate, color: Colors.white),
+            label: const Text("إضافة صور جديدة",
+                style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          buildField("عنوان الخبر", titleController),
+          const SizedBox(height: 14),
+
+          buildField("الملخص", subtitleController),
+          const SizedBox(height: 14),
+
+          buildField("نص الخبر", contentController, maxLines: 5),
+          const SizedBox(height: 24),
+
+          // زر حفظ التعديلات
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "عنوان الخبر"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: subtitleController,
-              decoration: const InputDecoration(labelText: "الملخص"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: contentController,
-              maxLines: 5,
-              decoration: const InputDecoration(labelText: "نص الخبر"),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                String finalImageUrl = imageUrl ?? "";
+            onPressed: () async {
+              List<String> uploaded = [...oldImages];
 
-                if (newImage != null) {
-                  finalImageUrl =
-                      await ImageUploadService.uploadImage(newImage!);
-                }
+              // رفع الصور الجديدة فقط
+              for (var f in newImages) {
+                final url = await ImageUploadService.uploadImage(f);
+                uploaded.add(url);
+              }
 
-                final images =
-                    finalImageUrl.isNotEmpty ? <String>[finalImageUrl] : <String>[];
+              final updated = widget.news.copyWith(
+                title: titleController.text.trim(),
+                subtitle: subtitleController.text.trim(),
+                details: contentController.text.trim(),
+                imageUrl: uploaded.isNotEmpty ? uploaded.first : "",
+                images: uploaded,
+              );
 
-                final updated = widget.news.copyWith(
-                  title: titleController.text.trim(),
-                  subtitle: subtitleController.text.trim(),
-                  details: contentController.text.trim(),
-                  imageUrl: finalImageUrl,
-                  images: images,
-                  // createdAt يبقى كما هو
-                );
-
-                await newsProvider.updateNews(updated);
-                if (mounted) Navigator.pop(context);
-              },
-              child: const Text("حفظ التعديلات"),
-            ),
-          ],
-        ),
+              await newsProvider.updateNews(updated);
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text("حفظ التعديلات",
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ],
       ),
     );
   }

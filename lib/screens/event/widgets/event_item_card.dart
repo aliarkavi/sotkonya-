@@ -18,6 +18,24 @@ class EventItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider? imageProvider;
+
+    if (obj.images.isNotEmpty) {
+      final first = obj.images.first;
+      if (first.startsWith('http')) {
+        imageProvider = NetworkImage(first);
+      } else {
+        imageProvider = AssetImage(first);
+      }
+    } else if (obj.imageUrl != null && obj.imageUrl!.isNotEmpty) {
+      final first = obj.imageUrl!;
+      if (first.startsWith('http')) {
+        imageProvider = NetworkImage(first);
+      } else {
+        imageProvider = AssetImage(first);
+      }
+    }
+
     return ItemCard(
       color: color,
       onTap: onTap,
@@ -98,10 +116,12 @@ class EventItemCard extends StatelessWidget {
                   height: 100,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(obj.images[0]),
-                      fit: BoxFit.fill,
-                    ),
+                    image: imageProvider != null
+                        ? DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.fill,
+                          )
+                        : null,
                     color: color,
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -114,8 +134,8 @@ class EventItemCard extends StatelessWidget {
               child: TextButton(
                 style: TextButton.styleFrom(
                   backgroundColor: color,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 8),
                   minimumSize: const Size(50, 20),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -136,4 +156,3 @@ class EventItemCard extends StatelessWidget {
     );
   }
 }
-

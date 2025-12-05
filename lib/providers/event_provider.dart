@@ -17,6 +17,20 @@ class EventProvider extends ChangeNotifier {
 
     try {
       _events = await _service.getEvents();
+
+      // ترتيب: أولاً الفعاليات القادمة، الأقرب فالأبعد، ثم الفعاليات الماضية
+      final now = DateTime.now();
+      final upcoming = _events
+          .where((e) => e.startDate.isAfter(now))
+          .toList()
+        ..sort((a, b) => a.startDate.compareTo(b.startDate));
+
+      final past = _events
+          .where((e) => !e.startDate.isAfter(now))
+          .toList()
+        ..sort((a, b) => b.startDate.compareTo(a.startDate));
+
+      _events = [...upcoming, ...past];
     } finally {
       _loading = false;
       notifyListeners();

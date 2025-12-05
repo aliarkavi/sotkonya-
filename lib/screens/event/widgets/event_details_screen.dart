@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:sotkonya/model/event_model.dart';
 
 import '../../../widgets/details_container.dart';
@@ -7,13 +9,40 @@ import '../../../widgets/layouts/details_page_layout.dart';
 import '../../../widgets/promo_slider.dart';
 
 class EventDetailsScreen extends StatelessWidget {
-  const EventDetailsScreen({super.key, required this.color, required this.obj});
+  const EventDetailsScreen(
+      {super.key, required this.color, required this.obj});
 
   final Color color;
   final EventModel obj;
 
+  Future<void> _openLocation() async {
+    final String url = obj.konumLink.isNotEmpty
+        ? obj.konumLink
+        : (obj.websiteUrl ?? '');
+
+    if (url.isEmpty) return;
+
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool showRegisterSection = obj.allowRegister &&
+        obj.registeredUsers != null &&
+        obj.maxRegisteredUsers != null &&
+        obj.maxRegisteredUsers != 0;
+
+    final bool showRegisterButton = obj.allowRegister;
+
+    final bool hasLocationLink =
+        obj.konumLink.isNotEmpty || (obj.websiteUrl?.isNotEmpty ?? false);
+
     return DetailsPageLayout(
       title: "تفاصيل الفعالية",
       child: Column(
@@ -41,7 +70,8 @@ class EventDetailsScreen extends StatelessWidget {
                       //  الوقت + التاريخ
                       Row(
                         textDirection: TextDirection.rtl,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           // التاريخ
                           Row(
@@ -94,62 +124,77 @@ class EventDetailsScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      if (obj.registeredUsers != null &&
-                          obj.maxRegisteredUsers != null &&
-                          obj.maxRegisteredUsers != 0)
+
+                      if (showRegisterSection)
                         RegisteredUsersSection(
-                          maxRegisteredUsers: obj.maxRegisteredUsers ?? 0,
-                          registeredUsers: obj.registeredUsers ?? 0,
+                          maxRegisteredUsers:
+                              obj.maxRegisteredUsers ?? 0,
+                          registeredUsers:
+                              obj.registeredUsers ?? 0,
                           color: const Color(0xFFFFB300),
                         ),
-                      const SizedBox(height: 15),
+
+                      if (showRegisterSection)
+                        const SizedBox(height: 15)
+                      else
+                        const SizedBox(height: 5),
+
                       Row(
                         children: [
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: color,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
+                          if (showRegisterButton)
+                            Expanded(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: color,
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize
+                                          .shrinkWrap,
                                 ),
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              onPressed: () {},
-                              child: const Text(
-                                "التسجيل",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                backgroundColor: color,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 8,
-                                ),
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              onPressed: () {},
-                              child: const Text(
-                                "الموقع",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                onPressed: () {
+                                  // منطق التسجيل سيتم إضافته لاحقاً
+                                },
+                                child: const Text(
+                                  "التسجيل",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          if (showRegisterButton && hasLocationLink)
+                            const SizedBox(width: 10),
+                          if (hasLocationLink)
+                            Expanded(
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: color,
+                                  padding:
+                                      const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 8,
+                                  ),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize
+                                          .shrinkWrap,
+                                ),
+                                onPressed: _openLocation,
+                                child: const Text(
+                                  "الموقع",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -160,31 +205,36 @@ class EventDetailsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 15),
-          DetailsContainer(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "نبذة عن الفعالية",
-                  style: TextStyle(
-                    fontSize: 18,
-                    height: 1.5,
-                    fontWeight: FontWeight.w600,
+
+          if (obj.details.trim().isNotEmpty)
+            DetailsContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "نبذة عن الفعالية",
+                    style: TextStyle(
+                      fontSize: 18,
+                      height: 1.5,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  obj.details,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.5,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 10),
+                  Text(
+                    obj.details,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 15),
+
+          if (obj.details.trim().isNotEmpty)
+            const SizedBox(height: 15),
+
           if (obj.eventTable != null && obj.eventTable!.isNotEmpty)
             DetailsContainer(
               child: Column(
@@ -204,7 +254,8 @@ class EventDetailsScreen extends StatelessWidget {
                     shrinkWrap: true,
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 15),
-                    physics: const NeverScrollableScrollPhysics(),
+                    physics:
+                        const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final item = obj.eventTable![index];
                       return EventTableItme(
@@ -238,7 +289,8 @@ class EventTableItme extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+      padding:
+          const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(15),
@@ -247,7 +299,8 @@ class EventTableItme extends StatelessWidget {
         children: [
           Text(
             time,
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style:
+                const TextStyle(fontWeight: FontWeight.w500),
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(width: 20),
@@ -255,7 +308,8 @@ class EventTableItme extends StatelessWidget {
             child: Text(
               txt,
               maxLines: 1,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -280,18 +334,22 @@ class RegisteredUsersSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final int registered = registeredUsers;
     final int max = maxRegisteredUsers;
-    final double progress = max == 0 ? 0 : registered / max;
+    final double progress =
+        max == 0 ? 0 : registered / max;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           textDirection: TextDirection.rtl,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment:
+              MainAxisAlignment.spaceBetween,
           children: [
             const Text(
               'عدد المسجلين',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600),
             ),
             Text(
               '$registered / $max',
@@ -310,11 +368,11 @@ class RegisteredUsersSection extends StatelessWidget {
             value: progress.clamp(0, 1),
             minHeight: 5,
             backgroundColor: const Color(0xFFF1F1F1),
-            valueColor: const AlwaysStoppedAnimation(Color(0xFFFFB300)),
+            valueColor:
+                const AlwaysStoppedAnimation(Color(0xFFFFB300)),
           ),
         ),
       ],
     );
   }
 }
-

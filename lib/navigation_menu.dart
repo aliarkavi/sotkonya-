@@ -4,7 +4,6 @@ import 'screens/home/home_screen.dart';
 import 'screens/news/news_screen.dart';
 import 'screens/event/event_screen.dart';
 import 'screens/yurtlar/yurtlar_screen.dart';
-import 'screens/administration/administration_screen.dart';
 import 'screens/settings/settings_screen.dart';
 
 class NavigationMenu extends StatefulWidget {
@@ -22,7 +21,6 @@ class _NavigationMenuState extends State<NavigationMenu> {
     NewsScreen(),
     EventScreen(),
     YurtlarScreen(),
-    AdministrationScreen(),
     SettingsScreen(),
   ];
 
@@ -92,7 +90,18 @@ class _NavigationMenuState extends State<NavigationMenu> {
             ),
             child: BottomNavigationBar(
               currentIndex: currentIndex,
-              onTap: (index) => setState(() => currentIndex = index),
+
+              // 🔥 إصلاح مشكلة setState during build
+              onTap: (index) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() {
+                      currentIndex = index;
+                    });
+                  }
+                });
+              },
+
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.white,
               elevation: 0,
@@ -119,13 +128,9 @@ class _NavigationMenuState extends State<NavigationMenu> {
                   icon: Icons.apartment_outlined,
                   label: "السكنات",
                 ),
+              
                 _buildNavItem(
                   index: 4,
-                  icon: Icons.person_outline_sharp,
-                  label: "الإدارة",
-                ),
-                _buildNavItem(
-                  index: 5,
                   icon: Icons.settings_outlined,
                   label: "الإعدادات",
                 ),
@@ -137,4 +142,3 @@ class _NavigationMenuState extends State<NavigationMenu> {
     );
   }
 }
-

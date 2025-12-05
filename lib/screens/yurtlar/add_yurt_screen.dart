@@ -1,9 +1,12 @@
 // lib/screens/yurt/add_yurt_screen.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../model/yurt_model.dart';
 import '../../providers/yurt_provider.dart';
+import '../../services/image_upload_service.dart';
 
 class AddYurtScreen extends StatefulWidget {
   const AddYurtScreen({super.key});
@@ -15,26 +18,51 @@ class AddYurtScreen extends StatefulWidget {
 class _AddYurtScreenState extends State<AddYurtScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController durumController = TextEditingController();
-  final TextEditingController personelController = TextEditingController();
   final TextEditingController fiyatController = TextEditingController();
+  final TextEditingController personelController = TextEditingController();
   final TextEditingController konumController = TextEditingController();
   final TextEditingController konumLinkController = TextEditingController();
   final TextEditingController telefoneController = TextEditingController();
   final TextEditingController detailsController = TextEditingController();
-  final TextEditingController imagesController = TextEditingController();
 
-  @override
-  void dispose() {
-    titleController.dispose();
-    durumController.dispose();
-    personelController.dispose();
-    fiyatController.dispose();
-    konumController.dispose();
-    konumLinkController.dispose();
-    telefoneController.dispose();
-    detailsController.dispose();
-    imagesController.dispose();
-    super.dispose();
+  final List<File> selectedImages = [];
+  final primaryColor = const Color(0xFFeb5623);
+
+  Future<void> pickImages() async {
+    final picker = ImagePicker();
+    final files = await picker.pickMultiImage();
+
+    if (files.isNotEmpty) {
+      setState(() {
+        selectedImages.addAll(files.map((e) => File(e.path)));
+      });
+    }
+  }
+
+  Widget buildField(String label, TextEditingController controller,
+      {int maxLines = 1}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontSize: 14, color: Colors.black54)),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -42,95 +70,139 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
     final provider = Provider.of<YurtProvider>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("إضافة سكن"),
-      ),
-      body: Padding(
+      appBar: AppBar(title: const Text("إضافة سكن")),
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: const InputDecoration(labelText: "اسم السكن"),
+        children: [
+          // اختيار الصور
+          GestureDetector(
+            onTap: pickImages,
+            child: Container(
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: selectedImages.isEmpty
+                  ? const Center(
+                      child: Icon(Icons.add_photo_alternate,
+                          color: Colors.grey, size: 40),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.file(
+                        selectedImages.first,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: durumController,
-              decoration: const InputDecoration(labelText: "الحالة (مثال: متاح)"),
+          ),
+
+          const SizedBox(height: 10),
+
+          // عرض الصور المختارة
+          if (selectedImages.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: selectedImages
+                  .map((img) => Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              img,
+                              width: 90,
+                              height: 90,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Positioned(
+                            right: 4,
+                            top: 4,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedImages.remove(img);
+                                });
+                              },
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                padding: const EdgeInsets.all(3),
+                                child: const Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ))
+                  .toList(),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: fiyatController,
-              decoration:
-                  const InputDecoration(labelText: "الإيجار (مثال: 11,000 ليرة شهريًا)"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: personelController,
-              decoration:
-                  const InputDecoration(labelText: "معلومات التواصل / نوع الغرف"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: konumController,
-              decoration:
-                  const InputDecoration(labelText: "الموقع (وصف نصي، مثال: قرب الحرم)"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: konumLinkController,
-              decoration: const InputDecoration(
-                  labelText: "رابط الموقع على الخريطة (Google Maps)"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: telefoneController,
-              decoration: const InputDecoration(labelText: "رقم الهاتف"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: detailsController,
-              maxLines: 3,
-              decoration:
-                  const InputDecoration(labelText: "نبذة عن السكن / التفاصيل"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: imagesController,
-              decoration: const InputDecoration(
-                labelText:
-                    "روابط أو مسارات الصور (افصل بين كل رابط بفاصلة , )",
+
+          const SizedBox(height: 20),
+
+          buildField("اسم السكن", titleController),
+          const SizedBox(height: 12),
+          buildField("الحالة", durumController),
+          const SizedBox(height: 12),
+          buildField("الإيجار", fiyatController),
+          const SizedBox(height: 12),
+          buildField("معلومات التواصل / نوع الغرف", personelController),
+          const SizedBox(height: 12),
+          buildField("الموقع", konumController),
+          const SizedBox(height: 12),
+          buildField("رابط خرائط Google", konumLinkController),
+          const SizedBox(height: 12),
+          buildField("رقم الهاتف", telefoneController),
+          const SizedBox(height: 12),
+          buildField("نبذة عن السكن", detailsController, maxLines: 3),
+
+          const SizedBox(height: 20),
+
+          // زر الحفظ
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () async {
-                final images = imagesController.text
-                    .split(',')
-                    .map((e) => e.trim())
-                    .where((e) => e.isNotEmpty)
-                    .toList();
+            onPressed: () async {
+              List<String> uploadedImages = [];
 
-                final item = YurtModel(
-                  id: DateTime.now().millisecondsSinceEpoch.toString(),
-                  title: titleController.text.trim(),
-                  durum: durumController.text.trim(),
-                  fiyat: fiyatController.text.trim(),
-                  personelData: personelController.text.trim(),
-                  konum: konumController.text.trim(),
-                  konumLink: konumLinkController.text.trim(),
-                  telefone: telefoneController.text.trim(),
-                  details: detailsController.text.trim(),
-                  images: images,
-                );
+              // رفع الصور
+              for (var img in selectedImages) {
+                final url = await ImageUploadService.uploadImage(img);
+                uploadedImages.add(url);
+              }
 
-                await provider.addYurt(item);
-                if (mounted) Navigator.pop(context);
-              },
-              child: const Text("حفظ السكن"),
-            ),
-          ],
-        ),
+              final item = YurtModel(
+                id: DateTime.now().millisecondsSinceEpoch.toString(),
+                title: titleController.text.trim(),
+                durum: durumController.text.trim(),
+                fiyat: fiyatController.text.trim(),
+                personelData: personelController.text.trim(),
+                konum: konumController.text.trim(),
+                konumLink: konumLinkController.text.trim(),
+                telefone: telefoneController.text.trim(),
+                details: detailsController.text.trim(),
+                images: uploadedImages,
+              );
+
+              await provider.addYurt(item);
+              if (mounted) Navigator.pop(context);
+            },
+            child: const Text("حفظ السكن",
+                style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ],
       ),
     );
   }

@@ -2,7 +2,7 @@ class AppUser {
   final String id;
   final String name;
   final String email;
-  final String role;
+  final String role;        // 🔥 هنا نحدد أدمن أو يوزر
   final String major;
   final String gender;
   final String photoUrl;
@@ -79,7 +79,7 @@ class AppUser {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
-      role: map['role'] ?? 'user',
+      role: map['role'] ?? 'user',     // 🔥 افتراضي User
       major: map['major'] ?? '',
       gender: map['gender'] ?? '',
       photoUrl: map['photoUrl'] ?? '',

@@ -7,7 +7,6 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/gradient_button.dart';
 import '../../../widgets/text_field.dart';
 import '../signup/signup.dart';
- 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  // ICON
+                  /// ICON
                   Container(
                     width: 60,
                     height: 60,
@@ -79,14 +78,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 25),
 
-                  // EMAIL OR USERNAME
+                  /// EMAIL OR USERNAME
                   CustomTextField(
                     label: "اسم المستخدم او البريد الإلكتروني",
                     controller: emailOrUserController,
                   ),
                   const SizedBox(height: 15),
 
-                  // PASSWORD
+                  /// PASSWORD
                   CustomTextField(
                     label: "كلمة المرور",
                     controller: passwordController,
@@ -95,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 10),
 
-                  // FORGOT PASSWORD
+                  /// FORGOT PASSWORD
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -105,23 +104,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (email.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content:
-                                  Text("يرجى إدخال البريد الإلكتروني أولاً"),
+                              content: Text("يرجى إدخال البريد الإلكتروني أولاً"),
                             ),
                           );
                           return;
                         }
 
-                        final auth = Provider.of<AuthProvider>(
-                            context,
-                            listen: false);
-
-                        await auth.resetPassword(email);
+                        await authProvider.resetPassword(email);
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                                "تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني"),
+                            content: Text("تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني"),
                           ),
                         );
                       },
@@ -131,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  // LOGIN BUTTON
+                  /// LOGIN BUTTON
                   GradientButton(
                     text: authProvider.loading
                         ? "جاري تسجيل الدخول..."
@@ -139,27 +132,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     icon: Icons.clear,
                     iconSize: 0,
                     onTap: () async {
-                      // 🔥 مهم جداً:
-                      // أي تسجيل دخول من هذه الصفحة → مستخدم عادي
-                      Provider.of<AuthProvider>(context, listen: false)
-                          .setAdmin(false);
+                      final email = emailOrUserController.text.trim();
+                      final password = passwordController.text.trim();
 
-                      await authProvider.login(
-                        emailOrUserController.text.trim(),
-                        passwordController.text.trim(),
-                      );
+                      if (email.isEmpty || password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("يرجى ملء جميع الحقول"),
+                          ),
+                        );
+                        return;
+                      }
 
-                      if (authProvider.error == null &&
-                          authProvider.user != null) {
+                      await authProvider.login(email, password);
+
+                      if (authProvider.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(authProvider.error!)),
+                        );
+                        return;
+                      }
+
+                      if (authProvider.user != null) {
+                        /// 🔥 إذا كان المستخدم أدمن → لوحة الإدارة
+                        /// 🔥 إذا كان مستخدم عادي → الصفحة الرئيسية
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => NavigationMenu()),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authProvider.error.toString()),
+                            builder: (context) => NavigationMenu(),
                           ),
                         );
                       }
@@ -168,17 +168,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  // SIGNUP LINK
+                  /// SIGNUP
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text("ليس لديك حساب؟"),
                       TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const SignupScreen()),
-                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SignupScreen()),
+                          );
+                        },
                         child: const Text("إنشاء حساب"),
                       ),
                     ],
@@ -186,13 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Divider(),
 
-                  // ADMIN LOGIN BUTTON
+                  /// ADMIN LOGIN BUTTON
                   TextButton(
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AdminLoginScreen()),
-                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AdminLoginScreen()),
+                      );
+                    },
                     child: const Text("دخول الإداريين"),
                   ),
                 ],

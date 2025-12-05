@@ -80,22 +80,7 @@ class YurtlarItemCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (isAdmin)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit,
-                                    color: Colors.blue),
-                                onPressed: onEdit,
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.red),
-                                onPressed: onDelete,
-                              ),
-                            ],
-                          ),
+                        
                       ],
                     ),
                     const SizedBox(height: 4),

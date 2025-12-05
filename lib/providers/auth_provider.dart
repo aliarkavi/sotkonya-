@@ -5,14 +5,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../model/app_user.dart';
 
 class AuthProvider extends ChangeNotifier {
-  AppUser? _appUser;    // بيانات Firestore
+  AppUser? _appUser; // بيانات Firestore
+  User? _user;       // بيانات Firebase Auth
+
   final AuthService _authService = AuthService();
-  String? _error;
-  bool _loading = false;
-  User? _user;          // من Firebase Auth
   final UserService _userService = UserService();
 
-  bool _isAdmin = false;     // 🔥 حالة الإداري
+  String? _error;
+  bool _loading = false;
+
+  bool _isAdmin = false; // 🔥 يتم تحديدها من Firestore
   bool get isAdmin => _isAdmin;
 
   User? get user => _user;
@@ -20,26 +22,31 @@ class AuthProvider extends ChangeNotifier {
   bool get loading => _loading;
   String? get error => _error;
 
-  /// 🔥 تفعيل أو إلغاء وضع الأدمن
-  void setAdmin(bool value) {
-    _isAdmin = value;
-    notifyListeners();
-  }
-
-  /// تسجيل دخول
+  // ---------------------------------------------------------
+  // 🔥 تسجيل دخول
+  // ---------------------------------------------------------
   Future<void> login(String email, String password) async {
     _setLoading(true);
     _setError(null);
 
     try {
+      // تسجيل الدخول من Firebase
       final u = await _authService.login(email: email, password: password);
       _setUser(u);
 
+      // 🔥 جلب بيانات المستخدم من Firestore
       final firestoreUser = await _userService.getUser(u!.uid);
+
       _setAppUser(firestoreUser);
 
-      // المستخدم العادي → ليس أدمن
-      _isAdmin = false;
+      // 🔥 التأكد من وجود المستخدم
+      if (firestoreUser == null) {
+        _isAdmin = false;
+      } else {
+        // 🔥 هل هو أدمن؟
+        _isAdmin = (firestoreUser.role == "admin");
+
+      }
 
     } catch (e) {
       _setError(e.toString());
@@ -48,17 +55,23 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// تسجيل مستخدم جديد
+  // ---------------------------------------------------------
+  // 🔥 تسجيل مستخدم جديد
+  // ---------------------------------------------------------
   Future<void> register(AppUser appUser, String password) async {
     _setLoading(true);
     _setError(null);
 
     try {
       final u = await _authService.register(user: appUser, password: password);
+
+      // حفظ بيانات Firebase
       _setUser(u);
 
+      // حفظ بيانات Firestore مع ID
       _setAppUser(appUser.copyWith(id: u!.uid));
 
+      // المستخدمين الجدد ليسوا إداريين
       _isAdmin = false;
 
     } catch (e) {
@@ -68,21 +81,25 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// إعادة تعيين كلمة المرور
-  Future<void> resetPassword(String email) async { 
+  // ---------------------------------------------------------
+  // 🔄 إعادة تعيين كلمة السر
+  // ---------------------------------------------------------
+  Future<void> resetPassword(String email) async {
     _setLoading(true);
     _setError(null);
 
-    try { 
+    try {
       await _authService.resetPassword(email);
-    } catch (e) { 
+    } catch (e) {
       _setError(e.toString());
-    } finally { 
+    } finally {
       _setLoading(false);
     }
   }
 
-  /// تسجيل خروج 
+  // ---------------------------------------------------------
+  // 🚪 تسجيل خروج
+  // ---------------------------------------------------------
   Future<void> logout() async {
     _setLoading(true);
 
@@ -90,7 +107,6 @@ class AuthProvider extends ChangeNotifier {
       await _authService.logout();
       _setUser(null);
       _setAppUser(null);
-      _isAdmin = false;
     } catch (e) {
       _setError(e.toString());
     } finally {
@@ -98,16 +114,9 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void _setLoading(bool value) {
-    _loading = value;
-    notifyListeners();
-  }
-
-  void _setError(String? msg) {
-    _error = msg;
-    notifyListeners();
-  }
-
+  // ---------------------------------------------------------
+  // 🌟 Internal Update Helpers
+  // ---------------------------------------------------------
   void _setUser(User? user) {
     _user = user;
     notifyListeners();
@@ -115,6 +124,16 @@ class AuthProvider extends ChangeNotifier {
 
   void _setAppUser(AppUser? appUser) {
     _appUser = appUser;
+    notifyListeners();
+  }
+
+  void _setLoading(bool value) {
+    _loading = value;
+    notifyListeners();
+  }
+
+  void _setError(String? value) {
+    _error = value;
     notifyListeners();
   }
 }

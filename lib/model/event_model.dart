@@ -26,6 +26,9 @@ class EventModel {
   final List<String> images;
   final List<Map<String, String>>? eventTable;
 
+  /// هل الفعالية مفعّل فيها التسجيل
+  final bool allowRegister;
+
   EventModel({
     required this.id,
     required this.title,
@@ -45,6 +48,7 @@ class EventModel {
     this.maxRegisteredUsers,
     this.images = const <String>[],
     this.eventTable,
+    this.allowRegister = false,
   })  : startDate = startDate ?? DateTime.now(),
         date = date ?? '',
         time = time ?? '',
@@ -107,9 +111,8 @@ class EventModel {
     final String? websiteUrl =
         map['websiteUrl'] as String? ?? map['konumLink'] as String?;
 
-    final String effectiveDetails = (map['details'] as String?) ??
-        description ??
-        '';
+    final String effectiveDetails =
+        (map['details'] as String?) ?? description ?? '';
 
     final String effectiveKonum =
         (map['konum'] as String?) ?? location ?? '';
@@ -123,6 +126,9 @@ class EventModel {
         : (map['imageUrl'] != null
             ? <String>[map['imageUrl'].toString()]
             : <String>[]);
+
+    final bool allowRegister =
+        (map['allowRegister'] as bool?) ?? false;
 
     return EventModel(
       id: id,
@@ -143,6 +149,7 @@ class EventModel {
       maxRegisteredUsers: (map['maxRegisteredUsers'] as num?)?.toInt(),
       images: effectiveImages,
       eventTable: eventTable,
+      allowRegister: allowRegister,
     );
   }
 
@@ -181,7 +188,7 @@ class EventModel {
       'maxRegisteredUsers': maxRegisteredUsers,
       'images': imageList,
       'eventTable': eventTable,
+      'allowRegister': allowRegister,
     };
   }
 }
-

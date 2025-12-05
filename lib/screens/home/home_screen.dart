@@ -25,14 +25,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DateTime? lastPressed; // ← ← مهم لميزة الضغط مرتين للخروج
+@override
+void initState() {
+  super.initState();
 
-  @override
-  void initState() {
-    super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+    final eventProvider = Provider.of<EventProvider>(context, listen: false);
 
-    Provider.of<NewsProvider>(context, listen: false).fetchNews();
-    Provider.of<EventProvider>(context, listen: false).fetchEvents();
-  }
+    newsProvider.fetchNews();
+    eventProvider.fetchEvents();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Align(
+                      /*  const Align(
                           alignment: Alignment.topRight,
                           child: Icon(
                             Icons.notifications_none_outlined,
                             color: Colors.white,
                             size: 30,
                           ),
-                        ),
+                        ),*/
                         const Spacer(),
                         const Text(
                           "مرحباً بك",

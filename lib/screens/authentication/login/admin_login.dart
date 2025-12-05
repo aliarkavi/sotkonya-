@@ -6,13 +6,58 @@ import '../../../providers/auth_provider.dart';
 import '../../../widgets/gradient_button.dart';
 import '../../../widgets/text_field.dart';
 
-class AdminLoginScreen extends StatelessWidget {
+class AdminLoginScreen extends StatefulWidget {
   const AdminLoginScreen({super.key});
 
   @override
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+}
+
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> _adminLogin(BuildContext context) async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
+    await auth.login(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    if (auth.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error!)),
+      );
+      return;
+    }
+
+    if (!auth.isAdmin) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "هذا الحساب ليس حساب مشرف، لا يمكنك الدخول إلى لوحة المشرف.",
+          ),
+        ),
+      );
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const NavigationMenu()),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text("دخول الإداريين"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("تسجيل دخول المشرف"),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Directionality(
@@ -28,7 +73,7 @@ class AdminLoginScreen extends StatelessWidget {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
                           Color(0xFF006db7),
                           Color(0xFF006db7),
@@ -38,14 +83,17 @@ class AdminLoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: const Center(
-                      child: Icon(Icons.shield_outlined,
-                          color: Colors.white, size: 30),
+                      child: Icon(
+                        Icons.shield_outlined,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 20),
                   const Text(
-                    'دخول الإداريين',
+                    'تسجيل دخول المشرف',
                     style: TextStyle(
                       fontSize: 18,
                       color: Color(0xFF00b39f),
@@ -54,36 +102,34 @@ class AdminLoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   const Text(
-                    'لوحة التحكم الإدارية',
+                    'يرجى إدخال بريد المشرف وكلمة المرور.',
                     style: TextStyle(fontSize: 16),
                   ),
 
                   const SizedBox(height: 25),
 
-                  CustomTextField(label: "معرّف المدير"),
+                  CustomTextField(
+                    label: "البريد الإلكتروني للمشرف",
+                    controller: emailController,
+                  ),
                   const SizedBox(height: 15),
 
-                  CustomTextField(label: "كلمة المرور", obscureText: true),
+                  CustomTextField(
+                    label: "كلمة المرور",
+                    controller: passwordController,
+                    obscureText: true,
+                  ),
+
                   const SizedBox(height: 20),
 
                   GradientButton(
-                    onTap: () async {
-                      /// هنا نفعل وضع الأدمن
-                      Provider.of<AuthProvider>(context, listen: false)
-                          .setAdmin(true);
-
-                      /// ثم ندخل لوحة الإدارة
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NavigationMenu(),
-                        ),
-                      );
-                    },
-                    text: "تسجيل دخول",
+                    onTap: auth.loading ? null : () => _adminLogin(context),
+                    text: auth.loading
+                        ? "جارٍ تسجيل دخول المشرف..."
+                        : "تسجيل دخول المشرف",
                     icon: Icons.admin_panel_settings,
                     iconSize: 0,
-                    colors: [
+                    colors: const [
                       Color(0xFF006db7),
                       Color(0xFF006db7),
                     ],
@@ -94,7 +140,9 @@ class AdminLoginScreen extends StatelessWidget {
 
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text("← العودة لتسجيل دخول الطلاب"),
+                    child: const Text(
+                      "رجوع إلى تسجيل الدخول العادي",
+                    ),
                   ),
                 ],
               ),
@@ -105,3 +153,4 @@ class AdminLoginScreen extends StatelessWidget {
     );
   }
 }
+
