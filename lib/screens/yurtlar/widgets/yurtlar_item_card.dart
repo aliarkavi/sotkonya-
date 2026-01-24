@@ -1,5 +1,6 @@
 // lib/screens/yurt/widgets/yurtlar_item_card.dart
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../model/yurt_model.dart';
 import '../../../widgets/item_card.dart';
@@ -16,13 +17,13 @@ class YurtlarItemCard extends StatelessWidget {
     this.onDelete,
   });
 
-  final IconData iconData;
   final Color color;
-  final VoidCallback onTap;
-  final YurtModel obj;
+  final IconData iconData;
   final bool isAdmin;
-  final VoidCallback? onEdit;
+  final YurtModel obj;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +106,7 @@ class YurtlarItemCard extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(Icons.attach_money_rounded, color: color),
+                        Icon(Icons.payments_outlined, color: color),
                         const SizedBox(width: 4),
                         Expanded(child: Text(obj.fiyat)),
                       ],
@@ -150,8 +151,11 @@ class YurtlarItemCard extends StatelessWidget {
                     minimumSize: const Size(50, 20),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  onPressed: () {
-                    // TODO: استدعاء الاتصال بالهاتف obj.telefone
+                  onPressed: () async {
+                    final phone = obj.telefone.trim();
+                    if (phone.isEmpty) return;
+                    final uri = Uri(scheme: 'tel', path: phone);
+                    await launchUrl(uri);
                   },
                   child: const Icon(
                     Icons.phone_outlined,
@@ -167,8 +171,12 @@ class YurtlarItemCard extends StatelessWidget {
                     minimumSize: const Size(50, 20),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  onPressed: () {
-                    // TODO: فتح رابط الخريطة obj.konumLink
+                  onPressed: () async {
+                    final link = obj.konumLink.trim();
+                    if (link.isEmpty) return;
+                    final uri = Uri.tryParse(link);
+                    if (uri == null) return;
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
                   },
                   child: const Icon(
                     Icons.location_on,

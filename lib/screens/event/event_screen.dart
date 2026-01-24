@@ -25,13 +25,18 @@ class _EventScreenState extends State<EventScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
+    if (_initialized) return;
+
+    _initialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final eventProvider = Provider.of<EventProvider>(context, listen: false);
       if (eventProvider.events.isEmpty && !eventProvider.loading) {
         eventProvider.fetchEvents();
       }
-      _initialized = true;
-    }
+    });
   }
 
   // ============================

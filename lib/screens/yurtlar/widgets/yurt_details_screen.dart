@@ -1,5 +1,6 @@
 // lib/screens/yurt/widgets/yurt_details_screen.dart
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../model/yurt_model.dart';
 import '../../../widgets/contact_information.dart';
@@ -17,6 +18,17 @@ class YurtDetailsScreen extends StatelessWidget {
 
   final Color color;
   final YurtModel obj;
+
+  Future<void> _openLocation() async {
+    if (obj.konumLink.isEmpty) return;
+    final uri = Uri.parse(obj.konumLink);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,9 +122,7 @@ class YurtDetailsScreen extends StatelessWidget {
                             ),
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          onPressed: () {
-                            // TODO: فتح رابط الخريطة obj.konumLink
-                          },
+                          onPressed: _openLocation,
                           child: const Text(
                             "الموقع على الخريطة",
                             style: TextStyle(

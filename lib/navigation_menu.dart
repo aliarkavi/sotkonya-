@@ -16,6 +16,8 @@ class NavigationMenu extends StatefulWidget {
 class _NavigationMenuState extends State<NavigationMenu> {
   int currentIndex = 0;
 
+  DateTime? _lastBackPress;
+
   final List<Widget> pages = const [
     HomeScreen(),
     NewsScreen(),
@@ -65,76 +67,117 @@ class _NavigationMenuState extends State<NavigationMenu> {
     );
   }
 
+  void _showExitHint() {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('اضغط رجوع مرة ثانية للخروج'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+  }
+
+  bool _handleBackPressed() {
+    // 1) إذا كنت على تبويب غير الرئيسية -> ارجع للرئيسية
+    if (currentIndex != 0) {
+      setState(() => currentIndex = 0);
+      return false; // لا تخرج من التطبيق
+    }
+
+    // 2) إذا كنت على الرئيسية -> Double back to exit
+    final now = DateTime.now();
+    final last = _lastBackPress;
+    _lastBackPress = now;
+
+    if (last == null || now.difference(last) > const Duration(seconds: 2)) {
+      _showExitHint();
+      return false;
+    }
+
+    return true; // اسمح بالخروج
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-        body: pages[currentIndex],
-        bottomNavigationBar: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 8,
-                offset: Offset(0, -2),
-              ),
-            ],
-          ),
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              splashFactory: NoSplash.splashFactory,
-            ),
-            child: BottomNavigationBar(
-              currentIndex: currentIndex,
-
-              // 🔥 إصلاح مشكلة setState during build
-              onTap: (index) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      currentIndex = index;
-                    });
-                  }
-                });
-              },
-
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
-              elevation: 0,
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              items: [
-                _buildNavItem(
-                  index: 0,
-                  icon: Icons.home_outlined,
-                  label: "الرئيسية",
-                ),
-                _buildNavItem(
-                  index: 1,
-                  icon: Icons.article_outlined,
-                  label: "الأخبار",
-                ),
-                _buildNavItem(
-                  index: 2,
-                  icon: Icons.event_note_outlined,
-                  label: "الفعاليات",
-                ),
-                _buildNavItem(
-                  index: 3,
-                  icon: Icons.apartment_outlined,
-                  label: "السكنات",
-                ),
-              
-                _buildNavItem(
-                  index: 4,
-                  icon: Icons.settings_outlined,
-                  label: "الإعدادات",
+      child: PopScope(
+        canPop: false, // نحن نتحكم بزر الرجوع
+        onPopInvoked: (didPop) {
+          // لا تعتمد على didPop هنا لأن canPop:false
+          final allowExit = _handleBackPressed();
+          if (allowExit) {
+            // أغلق التطبيق (ارجع للنظام)
+            Navigator.of(context).maybePop();
+          }
+        },
+        child: Scaffold(
+          body: pages[currentIndex],
+          bottomNavigationBar: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 8,
+                  offset: Offset(0, -2),
                 ),
               ],
+            ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+              ),
+              child: BottomNavigationBar(
+                currentIndex: currentIndex,
+
+                // 🔥 إصلاح مشكلة setState during build
+                onTap: (index) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      setState(() {
+                        currentIndex = index;
+                      });
+                    }
+                  });
+                },
+
+                type: BottomNavigationBarType.fixed,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                items: [
+                  _buildNavItem(
+                    index: 0,
+                    icon: Icons.home_outlined,
+                    label: "الرئيسية",
+                  ),
+                  _buildNavItem(
+                    index: 1,
+                    icon: Icons.article_outlined,
+                    label: "الأخبار",
+                  ),
+                  _buildNavItem(
+                    index: 2,
+                    icon: Icons.event_note_outlined,
+                    label: "الفعاليات",
+                  ),
+                  _buildNavItem(
+                    index: 3,
+                    icon: Icons.apartment_outlined,
+                    label: "السكنات",
+                  ),
+                  _buildNavItem(
+                    index: 4,
+                    icon: Icons.settings_outlined,
+                    label: "الإعدادات",
+                  ),
+                ],
+              ),
             ),
           ),
         ),

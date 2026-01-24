@@ -1,14 +1,15 @@
+// lib/screens/admin/events/edit_event_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+
 import 'package:sotkonya/model/event_model.dart';
 import 'package:sotkonya/providers/event_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
 class EditEventScreen extends StatefulWidget {
   final EventModel event;
-
   const EditEventScreen({super.key, required this.event});
 
   @override
@@ -22,8 +23,15 @@ class _EditEventScreenState extends State<EditEventScreen> {
   late TextEditingController registerUrlController;
   late TextEditingController websiteUrlController;
   late TextEditingController maxUsersController;
+  late TextEditingController adminPhoneController;
+
+  // ✅ جديد
+  late TextEditingController feeAmountController;
+  late TextEditingController feeCurrencyController;
 
   bool allowRegister = false;
+  bool isPaid = false;
+
   File? newImage;
   String? imageUrl;
   late DateTime startDate;
@@ -38,12 +46,22 @@ class _EditEventScreenState extends State<EditEventScreen> {
     registerUrlController = TextEditingController(text: widget.event.kayitLink);
     websiteUrlController = TextEditingController(text: widget.event.konumLink);
 
-    // إذا كان maxRegisteredUsers موجود → يعني التسجيل مفعل
-    allowRegister = widget.event.maxRegisteredUsers != null &&
-        widget.event.maxRegisteredUsers != 0;
+    allowRegister = widget.event.allowRegister;
+    isPaid = widget.event.isPaid;
 
     maxUsersController = TextEditingController(
-        text: widget.event.maxRegisteredUsers?.toString() ?? "");
+      text: (widget.event.maxRegisteredUsers ?? 0) == 0
+          ? ""
+          : widget.event.maxRegisteredUsers.toString(),
+    );
+
+    adminPhoneController = TextEditingController(text: widget.event.adminPhone);
+
+    feeAmountController = TextEditingController(
+      text: widget.event.feeAmount == 0 ? "" : widget.event.feeAmount.toString(),
+    );
+    feeCurrencyController =
+        TextEditingController(text: widget.event.feeCurrency.isEmpty ? '₺' : widget.event.feeCurrency);
 
     imageUrl = widget.event.imageUrl;
     startDate = widget.event.startDate;
@@ -94,7 +112,11 @@ class _EditEventScreenState extends State<EditEventScreen> {
     );
   }
 
-  Widget input(TextEditingController controller, {int maxLines = 1}) {
+  Widget input(
+    TextEditingController controller, {
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -104,6 +126,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
       child: TextField(
         controller: controller,
         maxLines: maxLines,
+        keyboardType: keyboardType,
         decoration: const InputDecoration(border: InputBorder.none),
       ),
     );
@@ -113,6 +136,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
   Widget build(BuildContext context) {
     final eventProvider = Provider.of<EventProvider>(context, listen: false);
     const primaryColor = Color(0xFFf2b200);
+
+    final showPaidOptions = allowRegister;
+    final showPaidFields = allowRegister && isPaid;
 
     return Scaffold(
       appBar: AppBar(title: const Text("تعديل فعالية")),
@@ -127,22 +153,13 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 color: const Color(0xFFF4F4F4),
                 borderRadius: BorderRadius.circular(15),
                 image: newImage != null
-                    ? DecorationImage(
-                        image: FileImage(newImage!),
-                        fit: BoxFit.cover,
-                      )
+                    ? DecorationImage(image: FileImage(newImage!), fit: BoxFit.cover)
                     : (imageUrl != null && imageUrl!.isNotEmpty)
-                        ? DecorationImage(
-                            image: NetworkImage(imageUrl!),
-                            fit: BoxFit.cover,
-                          )
+                        ? DecorationImage(image: NetworkImage(imageUrl!), fit: BoxFit.cover)
                         : null,
               ),
               child: (newImage == null && (imageUrl == null || imageUrl!.isEmpty))
-                  ? const Center(
-                      child: Icon(Icons.add_a_photo,
-                          size: 40, color: Colors.grey),
-                    )
+                  ? const Center(child: Icon(Icons.add_a_photo, size: 40, color: Colors.grey))
                   : null,
             ),
           ),
@@ -202,28 +219,70 @@ class _EditEventScreenState extends State<EditEventScreen> {
               ),
               const Spacer(),
               Switch(
-                activeColor: primaryColor,
+                activeThumbColor: primaryColor,
                 value: allowRegister,
-                onChanged: (v) => setState(() => allowRegister = v),
+                onChanged: (v) {
+                  setState(() {
+                    allowRegister = v;
+                    if (!allowRegister) {
+                      isPaid = false;
+                      adminPhoneController.clear();
+                      maxUsersController.clear();
+                      feeAmountController.clear();
+                      feeCurrencyController.text = '₺';
+                    }
+                  });
+                },
               ),
             ],
           ),
 
+          if (showPaidOptions) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Text(
+                  "الفعالية مأجورة",
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                Switch(
+                  activeThumbColor: primaryColor,
+                  value: isPaid,
+                  onChanged: (v) {
+                    setState(() {
+                      isPaid = v;
+                      if (!isPaid) {
+                        adminPhoneController.clear();
+                        feeAmountController.clear();
+                        feeCurrencyController.text = '₺';
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ],
+
           if (allowRegister) ...[
             const SizedBox(height: 16),
-            label("الحد الأقصى للمشاركين"),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF4F4F4),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: TextField(
-                controller: maxUsersController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(border: InputBorder.none),
-              ),
-            ),
+            label("الحد الأقصى للمشاركين (اتركه فارغ = غير محدد)"),
+            input(maxUsersController, keyboardType: TextInputType.number),
+          ],
+
+          if (showPaidFields) ...[
+            const SizedBox(height: 16),
+            label("مبلغ الأجرة"),
+            input(feeAmountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true)),
+
+            const SizedBox(height: 16),
+            label("العملة (مثال: ₺ أو TRY)"),
+            input(feeCurrencyController),
+
+            const SizedBox(height: 16),
+            label("رقم واتساب الأدمن لتأكيد الدفع (مثال: +905xxxxxxxxx)"),
+            input(adminPhoneController, keyboardType: TextInputType.phone),
           ],
 
           const SizedBox(height: 30),
@@ -235,13 +294,37 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 backgroundColor: primaryColor,
               ),
               onPressed: () async {
-                String finalImageUrl = imageUrl ?? "";
+                if (allowRegister && isPaid) {
+                  final fee = double.tryParse(feeAmountController.text.trim().replaceAll(',', '.')) ?? 0;
+                  if (fee <= 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("الرجاء إدخال مبلغ أجرة صحيح")),
+                    );
+                    return;
+                  }
+                  if (adminPhoneController.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("الرجاء إدخال رقم واتساب الأدمن للفعاليات المأجورة")),
+                    );
+                    return;
+                  }
+                }
 
+                String finalImageUrl = imageUrl ?? "";
                 if (newImage != null) {
                   finalImageUrl = await ImageUploadService.uploadImage(newImage!);
                 }
 
                 final sd = startDate;
+
+                final int maxUsers = allowRegister
+                    ? (int.tryParse(maxUsersController.text.trim()) ?? 0)
+                    : 0;
+
+                final double fee = double.tryParse(
+                      feeAmountController.text.trim().replaceAll(',', '.'),
+                    ) ??
+                    0;
 
                 final updated = EventModel(
                   id: widget.event.id,
@@ -260,23 +343,27 @@ class _EditEventScreenState extends State<EditEventScreen> {
                   kayitLink: registerUrlController.text.trim(),
                   konumLink: websiteUrlController.text.trim(),
                   details: descriptionController.text.trim(),
-                  maxRegisteredUsers: allowRegister
-                      ? int.tryParse(maxUsersController.text.trim()) ?? 0
-                      : null,
-                  registeredUsers: allowRegister
-                      ? widget.event.registeredUsers ?? 0
-                      : null,
+
+                  allowRegister: allowRegister,
+                  isPaid: isPaid,
+                  adminPhone: adminPhoneController.text.trim(),
+
+                  feeAmount: isPaid ? fee : 0,
+                  feeCurrency: feeCurrencyController.text.trim().isEmpty
+                      ? '₺'
+                      : feeCurrencyController.text.trim(),
+
+                  // حافظ على عداد المسجلين الحالي
+                  maxRegisteredUsers: allowRegister ? maxUsers : null,
+                  registeredUsers: allowRegister ? (widget.event.registeredUsers ?? 0) : null,
                 );
 
                 await eventProvider.updateEvent(updated);
-                Navigator.pop(context);
+                if (context.mounted) Navigator.pop(context);
               },
               child: const Text(
                 "حفظ التغييرات",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ),
           ),

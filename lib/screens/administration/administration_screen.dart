@@ -21,14 +21,19 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
+    if (_initialized) return;
+
+    _initialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final provider =
           Provider.of<AdministrationProvider>(context, listen: false);
       if (provider.items.isEmpty && !provider.loading) {
         provider.fetchAdministration();
       }
-      _initialized = true;
-    }
+    });
   }
 
   @override
@@ -139,4 +144,3 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
     );
   }
 }
-

@@ -8,6 +8,9 @@ import '../../../widgets/layouts/details_page_layout.dart';
 import '../../../widgets/promo_slider.dart';
 import '../../../widgets/sub_title_container.dart';
 
+// ✅ NEW: clickable links widget
+import '../../../widgets/content_widget.dart';
+
 class NewsDetailsScreen extends StatelessWidget {
   const NewsDetailsScreen({
     super.key,
@@ -37,8 +40,7 @@ class NewsDetailsScreen extends StatelessWidget {
             color: color,
             child: Column(
               children: [
-                if (images.isNotEmpty)
-                  PromoSlider(images: images, color: color),
+                if (images.isNotEmpty) PromoSlider(images: images, color: color),
                 const SizedBox(height: 5),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -77,16 +79,14 @@ class NewsDetailsScreen extends StatelessWidget {
           const SizedBox(height: 15),
           SubTitleContainer(color: color, subtitle: obj.subtitle),
           const SizedBox(height: 15),
+
+          // ✅ هنا التعديل: بدل Text(obj.details) استخدم NewsContentWidget
           DetailsContainer(
-            child: Text(
-              obj.details,
-              style: const TextStyle(
-                fontSize: 16,
-                height: 1.5,
-                fontWeight: FontWeight.w500,
-              ),
+            child: ContentWidget(
+              text: obj.details,
             ),
           ),
+
           const SizedBox(height: 20),
         ],
       ),

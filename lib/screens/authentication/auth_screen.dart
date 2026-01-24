@@ -68,7 +68,7 @@ class AuthScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 40),
                 Text(
-                  "جميع الحقوق محفوظة © 2025",
+                  "جميع الحقوق محفوظة © 2026",
                   style: TextStyle(
                     fontSize: 12,
                     color: const Color.fromARGB(255, 127, 127, 127),

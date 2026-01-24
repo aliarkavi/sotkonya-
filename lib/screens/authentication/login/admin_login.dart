@@ -27,7 +27,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     if (auth.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error!)),
+        SnackBar(content: Text("بريد المشرف أو كلمة المرور غير صحيحة.")),
       );
       return;
     }

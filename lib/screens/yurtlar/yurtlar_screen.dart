@@ -26,13 +26,18 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
+    if (_initialized) return;
+
+    _initialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final provider = Provider.of<YurtProvider>(context, listen: false);
       if (provider.items.isEmpty && !provider.loading) {
         provider.fetchYurtlar();
       }
-      _initialized = true;
-    }
+    });
   }
 
   // ================================

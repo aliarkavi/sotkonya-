@@ -53,6 +53,19 @@ class _SignupScreenState extends State<SignupScreen> {
   ];
 
   @override
+  void dispose() {
+    emailController.dispose();
+    nameController.dispose();
+    ageController.dispose();
+    majorController.dispose();
+    studentIdController.dispose();
+    phoneController.dispose();
+    extraInfoController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
 
@@ -78,8 +91,11 @@ class _SignupScreenState extends State<SignupScreen> {
                     borderRadius: BorderRadius.circular(55),
                   ),
                   child: const Center(
-                    child: Icon(Icons.person_add_alt_1_outlined,
-                        color: Colors.white, size: 30),
+                    child: Icon(
+                      Icons.person_add_alt_1_outlined,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                 ),
 
@@ -108,8 +124,9 @@ class _SignupScreenState extends State<SignupScreen> {
                 // المعلومات الشخصية
                 // ===========================
                 CustomTextField(
-                    label: "الاسم والكنية (بالتركية)",
-                    controller: nameController),
+                  label: "الاسم والكنية (بالتركية)",
+                  controller: nameController,
+                ),
                 const SizedBox(height: 15),
 
                 CustomDropdown(
@@ -121,9 +138,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 15),
 
                 CustomTextField(
-                    label: "العمر",
-                    controller: ageController,
-                    keyboardType: TextInputType.number),
+                  label: "العمر",
+                  controller: ageController,
+                  keyboardType: TextInputType.number,
+                ),
                 const SizedBox(height: 25),
 
                 // ===========================
@@ -145,45 +163,53 @@ class _SignupScreenState extends State<SignupScreen> {
                 ),
                 const SizedBox(height: 15),
 
-                CustomTextField(label: "التخصص", controller: majorController),
+                CustomTextField(
+                  label: "التخصص",
+                  controller: majorController,
+                ),
                 const SizedBox(height: 15),
 
                 CustomTextField(
-                    label: "رقم الطالب الجامعي",
-                    controller: studentIdController),
+                  label: "رقم الطالب الجامعي",
+                  controller: studentIdController,
+                ),
                 const SizedBox(height: 25),
 
                 // ===========================
                 // التواصل
                 // ===========================
                 CustomTextField(
-                    label: "البريد الإلكتروني",
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress),
+                  label: "البريد الإلكتروني",
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                ),
                 const SizedBox(height: 15),
 
                 CustomTextField(
-                    label: "رقم الهاتف",
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone),
+                  label: "رقم الهاتف",
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
                 const SizedBox(height: 25),
 
                 // ===========================
                 // إضافي
                 // ===========================
                 CustomTextField(
-                    label: "معلومات إضافية (اختياري)",
-                    controller: extraInfoController,
-                    maxLines: 3),
+                  label: "معلومات إضافية (اختياري)",
+                  controller: extraInfoController,
+                  maxLines: 3,
+                ),
                 const SizedBox(height: 25),
 
                 // ===========================
                 // كلمة المرور
                 // ===========================
                 CustomTextField(
-                    label: "كلمة المرور",
-                    controller: passwordController,
-                    obscureText: true),
+                  label: "كلمة المرور",
+                  controller: passwordController,
+                  obscureText: true,
+                ),
                 const SizedBox(height: 25),
 
                 // زر التسجيل
@@ -193,10 +219,14 @@ class _SignupScreenState extends State<SignupScreen> {
                       : () async {
                           if (gender == null ||
                               university == null ||
-                              studyYear == null) {
+                              studyYear == null ||
+                              nameController.text.trim().isEmpty ||
+                              emailController.text.trim().isEmpty ||
+                              passwordController.text.trim().isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("يرجى تعبئة جميع الحقول")),
+                                content: Text("يرجى تعبئة جميع الحقول المطلوبة"),
+                              ),
                             );
                             return;
                           }
@@ -214,16 +244,23 @@ class _SignupScreenState extends State<SignupScreen> {
                             faculty: "",
                             username: "",
                             age: int.tryParse(ageController.text),
+
+                            // ✅ الجديد
+                            studentNumber: studentIdController.text.trim(),
+                            studyYear: studyYear!,
+                            extraInfo: extraInfoController.text.trim(),
                           );
 
-                          await auth.register(
-                              user, passwordController.text.trim());
+                          await auth.register(user, passwordController.text.trim());
+
+                          if (!mounted) return;
 
                           if (auth.error == null) {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const LoginScreen()),
+                                builder: (_) => const LoginScreen(),
+                              ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -246,7 +283,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const LoginScreen()),
+                          builder: (context) => const LoginScreen(),
+                        ),
                       ),
                       child: const Text("تسجيل دخول"),
                     ),

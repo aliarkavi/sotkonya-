@@ -2,15 +2,25 @@ class AppUser {
   final String id;
   final String name;
   final String email;
-  final String role;        // 🔥 هنا نحدد أدمن أو يوزر
+
+  /// admin / user
+  final String role;
+
   final String major;
   final String gender;
   final String photoUrl;
+
   final String phone;
   final String university;
   final String faculty;
   final String username;
+
   final int? age;
+
+  /// ✅ جديد (حسب Signup + Profile)
+  final String studentNumber; // رقم الطالب الجامعي
+  final String studyYear;     // سنة الدراسة
+  final String extraInfo;     // معلومات إضافية
 
   AppUser({
     required this.id,
@@ -25,6 +35,9 @@ class AppUser {
     this.faculty = '',
     this.username = '',
     this.age,
+    this.studentNumber = '',
+    this.studyYear = '',
+    this.extraInfo = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -41,6 +54,9 @@ class AppUser {
       'faculty': faculty,
       'username': username,
       'age': age,
+      'studentNumber': studentNumber,
+      'studyYear': studyYear,
+      'extraInfo': extraInfo,
     };
   }
 
@@ -57,6 +73,9 @@ class AppUser {
     String? faculty,
     String? username,
     int? age,
+    String? studentNumber,
+    String? studyYear,
+    String? extraInfo,
   }) {
     return AppUser(
       id: id ?? this.id,
@@ -71,6 +90,9 @@ class AppUser {
       faculty: faculty ?? this.faculty,
       username: username ?? this.username,
       age: age ?? this.age,
+      studentNumber: studentNumber ?? this.studentNumber,
+      studyYear: studyYear ?? this.studyYear,
+      extraInfo: extraInfo ?? this.extraInfo,
     );
   }
 
@@ -79,7 +101,7 @@ class AppUser {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       email: map['email'] ?? '',
-      role: map['role'] ?? 'user',     // 🔥 افتراضي User
+      role: map['role'] ?? 'user',
       major: map['major'] ?? '',
       gender: map['gender'] ?? '',
       photoUrl: map['photoUrl'] ?? '',
@@ -87,7 +109,10 @@ class AppUser {
       university: map['university'] ?? '',
       faculty: map['faculty'] ?? '',
       username: map['username'] ?? '',
-      age: map['age'] != null ? (map['age'] as int) : null,
+      age: (map['age'] as num?)?.toInt(), // ✅ آمن مع Firestore
+      studentNumber: map['studentNumber'] ?? '',
+      studyYear: map['studyYear'] ?? '',
+      extraInfo: map['extraInfo'] ?? '',
     );
   }
 }

@@ -27,10 +27,14 @@ class _NewsScreenState extends State<NewsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
+    if (_initialized) return;
+
+    _initialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       Provider.of<NewsProvider>(context, listen: false).fetchNews();
-      _initialized = true;
-    }
+    });
   }
 
   // BOTTOMSHEET UI

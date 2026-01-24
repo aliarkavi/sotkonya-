@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   /// EMAIL OR USERNAME
                   CustomTextField(
-                    label: "اسم المستخدم او البريد الإلكتروني",
+                    label: "ادخل البريد الإلكتروني",
                     controller: emailOrUserController,
                   ),
                   const SizedBox(height: 15),
@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       if (authProvider.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(authProvider.error!)),
+                          SnackBar(content: Text("كلمة المرور خاطئة او البريد غير مسجل ")),
                         );
                         return;
                       }

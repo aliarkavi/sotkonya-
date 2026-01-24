@@ -1,15 +1,6 @@
 import 'package:flutter/material.dart';
 
 class GradientButton extends StatelessWidget {
-  final String text;
-  final IconData icon;
-
-  /// ⬅️ أهم تعديل: بدل VoidCallback أصبح Future<void> Function()?
-  final Future<void> Function()? onTap;
-
-  final double iconSize;
-  final List<Color> colors;
-
   const GradientButton({
     super.key,
     required this.text,
@@ -23,6 +14,15 @@ class GradientButton extends StatelessWidget {
       Color(0xfff2b200),
     ],
   });
+
+  // ignore: unintended_html_in_doc_comment
+  /// ⬅️ أهم تعديل: بدل VoidCallback أصبح Future<void> Function()?
+  final Future<void> Function()? onTap;
+
+  final List<Color> colors;
+  final IconData icon;
+  final double iconSize;
+  final String text;
 
   @override
   Widget build(BuildContext context) {

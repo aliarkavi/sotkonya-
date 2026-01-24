@@ -5,6 +5,7 @@
 
     <!-- للصور على Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- للصور على Android 12 وما قبل -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

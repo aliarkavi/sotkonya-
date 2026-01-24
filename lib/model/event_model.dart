@@ -1,10 +1,9 @@
+// lib/model/event_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventModel {
-  /// Document id in Firestore.
   final String id;
 
-  /// Core fields used in add/edit screens.
   final String title;
   final String? description;
   final String? location;
@@ -13,7 +12,6 @@ class EventModel {
   final String? websiteUrl;
   final DateTime startDate;
 
-  /// Legacy / UI fields already used in widgets.
   final String date;
   final String time;
   final String konum;
@@ -23,11 +21,24 @@ class EventModel {
 
   final int? registeredUsers;
   final int? maxRegisteredUsers;
+
   final List<String> images;
   final List<Map<String, String>>? eventTable;
 
   /// هل الفعالية مفعّل فيها التسجيل
   final bool allowRegister;
+
+  /// هل الفعالية مأجورة
+  final bool isPaid;
+
+  /// رقم واتساب الأدمن للتواصل (مثال: +905xxxxxxxxx)
+  final String adminPhone;
+
+  /// ✅ مبلغ الأجرة (مثال: 150)
+  final double feeAmount;
+
+  /// ✅ العملة (مثال: ₺ أو TRY)
+  final String feeCurrency;
 
   EventModel({
     required this.id,
@@ -49,6 +60,10 @@ class EventModel {
     this.images = const <String>[],
     this.eventTable,
     this.allowRegister = false,
+    this.isPaid = false,
+    this.adminPhone = '',
+    this.feeAmount = 0,
+    this.feeCurrency = '₺',
   })  : startDate = startDate ?? DateTime.now(),
         date = date ?? '',
         time = time ?? '',
@@ -57,9 +72,7 @@ class EventModel {
         kayitLink = kayitLink ?? '',
         details = details ?? '';
 
-  /// Build model from Firestore document data.
   factory EventModel.fromMap(String id, Map<String, dynamic> map) {
-    // startDate may be Timestamp / DateTime / String / null
     DateTime? start;
     final rawStart = map['startDate'];
     if (rawStart is Timestamp) {
@@ -79,26 +92,20 @@ class EventModel {
           '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
     }
 
-    // Images list
     final imagesList = (map['images'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .toList() ??
         <String>[];
 
-    // Event table
     final tableList = map['eventTable'] as List<dynamic>?;
     List<Map<String, String>>? eventTable;
     if (tableList != null) {
       eventTable = tableList
           .whereType<Map>()
-          .map(
-            (m) => m.map(
-              (key, value) => MapEntry(
+          .map((m) => m.map((key, value) => MapEntry(
                 key.toString(),
                 value.toString(),
-              ),
-            ),
-          )
+              )))
           .toList();
     }
 
@@ -114,8 +121,7 @@ class EventModel {
     final String effectiveDetails =
         (map['details'] as String?) ?? description ?? '';
 
-    final String effectiveKonum =
-        (map['konum'] as String?) ?? location ?? '';
+    final String effectiveKonum = (map['konum'] as String?) ?? location ?? '';
     final String effectiveKonumLink =
         (map['konumLink'] as String?) ?? websiteUrl ?? '';
     final String effectiveKayitLink =
@@ -127,8 +133,17 @@ class EventModel {
             ? <String>[map['imageUrl'].toString()]
             : <String>[]);
 
-    final bool allowRegister =
-        (map['allowRegister'] as bool?) ?? false;
+    final bool allowRegister = (map['allowRegister'] as bool?) ?? false;
+    final bool isPaid = (map['isPaid'] as bool?) ?? false;
+    final String adminPhone = (map['adminPhone'] as String?) ?? '';
+
+    // ✅ مبلغ الأجرة
+    final double feeAmount =
+        (map['feeAmount'] as num?)?.toDouble() ?? 0.0;
+    final String feeCurrency =
+        (map['feeCurrency'] as String?)?.trim().isNotEmpty == true
+            ? (map['feeCurrency'] as String).trim()
+            : '₺';
 
     return EventModel(
       id: id,
@@ -139,8 +154,8 @@ class EventModel {
       registerUrl: registerUrl,
       websiteUrl: websiteUrl,
       startDate: start,
-      date: (map['date'] as String?) ?? dateText,
-      time: (map['time'] as String?) ?? timeText,
+      date: (map['date'] as String?) ?? dateText ?? '',
+      time: (map['time'] as String?) ?? timeText ?? '',
       konum: effectiveKonum,
       konumLink: effectiveKonumLink,
       kayitLink: effectiveKayitLink,
@@ -150,15 +165,17 @@ class EventModel {
       images: effectiveImages,
       eventTable: eventTable,
       allowRegister: allowRegister,
+      isPaid: isPaid,
+      adminPhone: adminPhone,
+      feeAmount: feeAmount,
+      feeCurrency: feeCurrency,
     );
   }
 
-  /// Convert model to map to store in Firestore.
   Map<String, dynamic> toMap() {
     final String effectiveDetails =
         details.isNotEmpty ? details : (description ?? '');
-    final String effectiveKonum =
-        konum.isNotEmpty ? konum : (location ?? '');
+    final String effectiveKonum = konum.isNotEmpty ? konum : (location ?? '');
     final String effectiveKonumLink =
         konumLink.isNotEmpty ? konumLink : (websiteUrl ?? '');
     final String effectiveKayitLink =
@@ -189,6 +206,12 @@ class EventModel {
       'images': imageList,
       'eventTable': eventTable,
       'allowRegister': allowRegister,
+      'isPaid': isPaid,
+      'adminPhone': adminPhone.trim(),
+
+      // ✅ السعر
+      'feeAmount': feeAmount,
+      'feeCurrency': feeCurrency.trim().isEmpty ? '₺' : feeCurrency.trim(),
     };
   }
 }

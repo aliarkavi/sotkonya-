@@ -1,6 +1,6 @@
-// ignore_for_file: unnecessary_string_interpolations
-
+// ignore_for_file: unnecessary_string_interpolations, deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sotkonya/screens/home/widgets/home_events_card.dart';
 
@@ -24,20 +24,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime? lastPressed; // ← ← مهم لميزة الضغط مرتين للخروج
-@override
-void initState() {
-  super.initState();
+  DateTime? lastPressed;
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final newsProvider = Provider.of<NewsProvider>(context, listen: false);
-    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+  @override
+  void initState() {
+    super.initState();
 
-    newsProvider.fetchNews();
-    eventProvider.fetchEvents();
-  });
-}
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+      final eventProvider = Provider.of<EventProvider>(context, listen: false);
 
+      newsProvider.fetchNews();
+      eventProvider.fetchEvents();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,24 +59,27 @@ void initState() {
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: 
-              Text("اضغط مرة أخرى للخروج من التطبيق" ),
+              content: Text("اضغط مرة أخرى للخروج من التطبيق"),
               duration: Duration(seconds: 2),
             ),
           );
 
-          return false; // لا يخرج
+          return false; // لا يخرج الآن
         }
 
-        return true; // يخرج من التطبيق
+        // ✨ إغلاق التطبيق فعليًا بدون تسجيل خروج
+        Future.delayed(const Duration(milliseconds: 100), () {
+          SystemNavigator.pop();
+        });
+
+        return true;
       },
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView
-(
+          child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 10.0, horizontal: 15.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -95,14 +98,6 @@ void initState() {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      /*  const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(
-                            Icons.notifications_none_outlined,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),*/
                         const Spacer(),
                         const Text(
                           "مرحباً بك",

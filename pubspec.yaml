@@ -32,14 +32,18 @@ dependencies:
   image_picker: ^0.8.7+5
   fluttertoast: ^8.2.1
   shared_preferences: ^2.1.1
-  url_launcher: ^6.1.7
+  url_launcher: ^6.3.2
   share_plus: 12.0.1
   package_info_plus: ^9.0.0
   uuid: ^4.5.2
   path_provider: ^2.0.15
-
+  firebase_messaging: ^16.0.3
+  flutter_local_notifications: ^17.0.0
   permission_handler: ^11.3.1
   shimmer: ^3.0.0
+
+  flutter_native_splash: ^2.4.4
+  flutter_linkify: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -71,4 +75,19 @@ flutter:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/splash_logo1.png"
+
+# ------------------------------------------------------------------
+# ✅ Native Splash Screen (الحل الحقيقي لمشكلة التحميل عند الفتح)
+# ------------------------------------------------------------------
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/splash_logo1.png
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/splash_logo1.png
+
+  android: true
+  ios: true
+  web: false
