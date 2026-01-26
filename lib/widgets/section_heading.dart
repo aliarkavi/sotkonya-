@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SectionHeading extends StatelessWidget {
-  const SectionHeading({super.key, required this.title});
+  const SectionHeading({super.key, required this.title, required Future Function() onTap});
 
   final String title;
 

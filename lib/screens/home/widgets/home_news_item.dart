@@ -1,30 +1,26 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
+import '../../../model/news_model.dart'; // تأكد من مسار المودل الصحيح
 
 class HomeNewsItem extends StatelessWidget {
   const HomeNewsItem({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.imageUrl,
+    required this.obj, // نمرر الكائن كاملاً ليأخذ منه كل البيانات
     required this.onTap,
-    this.meta,
   });
 
-  final String title;
-  final String subtitle;
-  final String imageUrl;
+  final NewsModel obj;
   final VoidCallback? onTap;
-  final String? meta;
 
   @override
   Widget build(BuildContext context) {
-    final contentHeight = 100.0;
-    final metaText =
-        meta ?? DateTime.now().toString().substring(0, 10); // fallback date
+    const contentHeight = 110.0; // زيادة بسيطة ليتسع للتاريخ بوضوح
+    
+    // تنسيق التاريخ بنفس الطريقة التي استخدمتها في الأكواد السابقة
+    final dateString = "${obj.newsDate.day}/${obj.newsDate.month}/${obj.newsDate.year}";
 
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2), // مسافة بسيطة حول الكارت
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -33,9 +29,9 @@ class HomeNewsItem extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 5,
-            offset: const Offset(0, 0),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -45,30 +41,31 @@ class HomeNewsItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // صورة أو خلفية
-                Container(
-                  width: 100,
-                  height: contentHeight,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: imageUrl.isNotEmpty
-                        ? DecorationImage(
-                            image: NetworkImage(imageUrl),
+                // صورة الخبر
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 100,
+                    height: contentHeight,
+                    color: Colors.grey.shade200,
+                    child: obj.imageUrl.isNotEmpty
+                        ? Image.network(
+                            obj.imageUrl,
                             fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => 
+                              const Icon(Icons.broken_image, color: Colors.grey),
                           )
-                        : const DecorationImage(
-                            image: AssetImage(''),
-                            fit: BoxFit.cover,
-                          ),
+                        : const Icon(Icons.newspaper, size: 40, color: Colors.grey),
                   ),
                 ),
 
                 const SizedBox(width: 12),
 
+                // النصوص
                 Expanded(
                   child: SizedBox(
                     height: contentHeight,
@@ -80,48 +77,58 @@ class HomeNewsItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              title,
+                              obj.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              subtitle,
+                              obj.subtitle,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                                fontSize: 13,
+                                color: Colors.black54,
                                 height: 1.2,
                               ),
                             ),
                           ],
                         ),
 
+                        // السطر السفلي: التاريخ + الزر
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              metaText,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+                            // التاريخ مع أيقونة بسيطة
+                            Row(
+                              children: [
+                                
+                                const SizedBox(width: 4),
+                                Text(
+                                  dateString,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const Spacer(),
+                            
+                            // زر اقرأ المزيد
                             SizedBox(
-                              height: 30,
+                              height: 28,
                               child: TextButton(
                                 style: TextButton.styleFrom(
                                   backgroundColor: const Color(0xFF006db7),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
                                 onPressed: onTap,
@@ -130,7 +137,7 @@ class HomeNewsItem extends StatelessWidget {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                   ),
                                 ),
                               ),

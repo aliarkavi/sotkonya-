@@ -57,7 +57,7 @@ class YurtDetailsScreen extends StatelessWidget {
                               obj.title,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -75,7 +75,7 @@ class YurtDetailsScreen extends StatelessWidget {
                             child: Text(
                               obj.durum,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: Color.fromARGB(255, 255, 255, 255),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),

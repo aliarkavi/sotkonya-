@@ -27,7 +27,8 @@ class NewsItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateString =
-        "${obj.createdAt.day}/${obj.createdAt.month}/${obj.createdAt.year}";
+    "${obj.newsDate.day}/${obj.newsDate.month}/${obj.newsDate.year}";
+
 
     return ItemCard(
       color: color,

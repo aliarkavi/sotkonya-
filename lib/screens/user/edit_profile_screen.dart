@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+import 'dart:io'; // ✅ مطلوب للتعامل مع ملف الصورة المختارة
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart'; // ✅ مكتبة اختيار الصور
 import 'package:provider/provider.dart';
 
 import 'package:sotkonya/model/app_user.dart';
@@ -31,6 +34,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? gender;
   String? university;
   String? studyYear;
+
+  // ✅ متغيرات الصورة الجديدة
+  File? _selectedImageFile; 
 
   final List<String> universities = const [
     "سلجوق",
@@ -65,7 +71,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     facultyController = TextEditingController(text: u.faculty);
     extraInfoController = TextEditingController(text: u.extraInfo);
 
-    // حل مشكلة male/female القديمة
     if (u.gender == 'male') {
       gender = 'ذكر';
     } else if (u.gender == 'female') {
@@ -92,6 +97,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  // ✅ وظيفة اختيار الصورة من الاستوديو
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50, // لتقليل حجم الصورة المرفوعة
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _save() async {
     final auth = Provider.of<AuthProvider>(context, listen: false);
 
@@ -109,6 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
+    // ملاحظة: هنا يجب أن يتعامل authProvider مع رفع الصورة إذا كانت _selectedImageFile ليست null
     final updatedUser = widget.user.copyWith(
       name: nameController.text.trim(),
       age: int.tryParse(ageController.text.trim()),
@@ -120,9 +141,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       gender: gender!,
       university: university!,
       studyYear: studyYear!,
+      // إذا كان عندك منطق رفع صور في الـ Provider مرر الملف له هنا
     );
 
-    await auth.updateProfile(updatedUser);
+    // تحديث البيانات (يمكنك تمرير الملف كبارامتر إضافي إذا كان الـ Provider يدعم ذلك)
+    await auth.updateProfile(updatedUser, imageFile: _selectedImageFile);
 
     if (!mounted) return;
 
@@ -163,14 +186,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   const SizedBox(height: 10),
 
-                  // ✅ نفس رأس البروفايل (عرض سريع)
-                ProfileHeaderCard(
-  name: widget.user.name,
-  studentNumber: widget.user.studentNumber,
-  major: widget.user.major,
-  photoUrl: widget.user.photoUrl, // ✅
-),
-
+                  // ✅ الهيدر أصبح قابلاً للضغط لتغيير الصورة بنفس أسلوبك
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Stack(
+                      children: [
+                        ProfileHeaderCard(
+                          name: nameController.text.isEmpty ? widget.user.name : nameController.text,
+                          studentNumber: studentNumberController.text,
+                          major: majorController.text,
+                          // نمرر الصورة المختارة محلياً إذا وُجدت، وإلا نمرر الرابط القديم
+                          photoUrl: _selectedImageFile == null ? widget.user.photoUrl : null,
+                          localImage: _selectedImageFile, 
+                        ),
+                        // أيقونة كاميرا صغيرة توضيحية
+                        Positioned(
+                          bottom: 15,
+                          left: 15,
+                          child: CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            child: const Icon(Icons.camera_alt, color: Colors.white, size: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
                   const SizedBox(height: 10),
 
@@ -211,7 +252,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         const SizedBox(height: 10),
 
-                        // البريد عادة ما لا يُعدّل (FirebaseAuth)
                         _ReadOnlyRow(
                           icon: Icons.email_outlined,
                           label: "البريد الإلكتروني",
@@ -315,8 +355,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   GradientButton(
                     onTap: auth.loading ? null : _save,
                     text: auth.loading ? "جاري الحفظ..." : "حفظ التعديلات",
-                    icon: Icons.clear,
-                    iconSize: 0,
+                    icon: Icons.save_outlined,
+                    iconSize: 20,
                   ),
 
                   const SizedBox(height: 10),
@@ -331,7 +371,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 }
 
 // -----------------------------------------------------------------------------
-// Widgets صغيرة لتخطيط مشابه لـ InfoRowItem (Icon + محتوى)
+// الـ Widgets المساعدة (نفس أسلوبك)
 // -----------------------------------------------------------------------------
 
 class _EditRowTextField extends StatelessWidget {
@@ -386,7 +426,6 @@ class _EditRowDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // حماية إضافية: إذا value غير موجودة ضمن items نخليها null
     final safeValue = (value != null && items.contains(value)) ? value : null;
 
     return Row(

@@ -31,14 +31,17 @@ class EventModel {
   /// هل الفعالية مأجورة
   final bool isPaid;
 
-  /// رقم واتساب الأدمن للتواصل (مثال: +905xxxxxxxxx)
+  /// رقم واتساب الأدمن
   final String adminPhone;
 
-  /// ✅ مبلغ الأجرة (مثال: 150)
+  /// مبلغ الأجرة
   final double feeAmount;
 
-  /// ✅ العملة (مثال: ₺ أو TRY)
+  /// العملة
   final String feeCurrency;
+
+  /// ✅ حالة الفعالية (مفتوح – قريبًا – مكتمل – ملغي)
+  final String durum;
 
   EventModel({
     required this.id,
@@ -64,13 +67,17 @@ class EventModel {
     this.adminPhone = '',
     this.feeAmount = 0,
     this.feeCurrency = '₺',
+
+    /// الجديد
+    String? durum,
   })  : startDate = startDate ?? DateTime.now(),
         date = date ?? '',
         time = time ?? '',
         konum = konum ?? '',
         konumLink = konumLink ?? '',
         kayitLink = kayitLink ?? '',
-        details = details ?? '';
+        details = details ?? '',
+        durum = (durum == null || durum.isEmpty) ? 'قريبًا' : durum;
 
   factory EventModel.fromMap(String id, Map<String, dynamic> map) {
     DateTime? start;
@@ -137,13 +144,18 @@ class EventModel {
     final bool isPaid = (map['isPaid'] as bool?) ?? false;
     final String adminPhone = (map['adminPhone'] as String?) ?? '';
 
-    // ✅ مبلغ الأجرة
     final double feeAmount =
         (map['feeAmount'] as num?)?.toDouble() ?? 0.0;
     final String feeCurrency =
         (map['feeCurrency'] as String?)?.trim().isNotEmpty == true
-            ? (map['feeCurrency'] as String).trim()
+            ? map['feeCurrency']
             : '₺';
+
+    /// الحالة
+    final String durum =
+        (map['durum'] as String?)?.trim().isNotEmpty == true
+            ? map['durum']
+            : 'قريبًا';
 
     return EventModel(
       id: id,
@@ -169,13 +181,15 @@ class EventModel {
       adminPhone: adminPhone,
       feeAmount: feeAmount,
       feeCurrency: feeCurrency,
+      durum: durum,
     );
   }
 
   Map<String, dynamic> toMap() {
     final String effectiveDetails =
         details.isNotEmpty ? details : (description ?? '');
-    final String effectiveKonum = konum.isNotEmpty ? konum : (location ?? '');
+    final String effectiveKonum =
+        konum.isNotEmpty ? konum : (location ?? '');
     final String effectiveKonumLink =
         konumLink.isNotEmpty ? konumLink : (websiteUrl ?? '');
     final String effectiveKayitLink =
@@ -208,10 +222,10 @@ class EventModel {
       'allowRegister': allowRegister,
       'isPaid': isPaid,
       'adminPhone': adminPhone.trim(),
-
-      // ✅ السعر
       'feeAmount': feeAmount,
-      'feeCurrency': feeCurrency.trim().isEmpty ? '₺' : feeCurrency.trim(),
+      'feeCurrency':
+          feeCurrency.trim().isEmpty ? '₺' : feeCurrency.trim(),
+      'durum': durum.trim().isEmpty ? 'قريبًا' : durum.trim(),
     };
   }
 }

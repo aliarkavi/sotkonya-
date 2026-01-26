@@ -43,7 +43,7 @@ class YurtlarItemCard extends StatelessWidget {
                   color: color,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(iconData, color: Colors.white, size: 20),
+                child: Icon(iconData, color: const Color.fromARGB(255, 255, 255, 255), size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -59,7 +59,7 @@ flutter:
     - assets/images/
 
   fonts:
-    - family: Tajawal
+    - family: Tajawal 
       fonts:
         - asset: assets/font/tajawal/Tajawal-Extralight.ttf
           weight: 100

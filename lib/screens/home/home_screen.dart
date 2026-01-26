@@ -29,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final newsProvider = Provider.of<NewsProvider>(context, listen: false);
       final eventProvider = Provider.of<EventProvider>(context, listen: false);
@@ -45,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final eventProvider = Provider.of<EventProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
 
+    // نأخذ أول خبرين وأول فعاليتين
     final latestNews = newsProvider.news.take(2).toList();
     final latestEvents = eventProvider.events.take(2).toList();
     final userName = authProvider.appUser?.name ?? "زائر";
@@ -52,34 +52,27 @@ class _HomeScreenState extends State<HomeScreen> {
     return WillPopScope(
       onWillPop: () async {
         final now = DateTime.now();
-
         if (lastPressed == null ||
             now.difference(lastPressed!) > const Duration(seconds: 2)) {
           lastPressed = now;
-
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("اضغط مرة أخرى للخروج من التطبيق"),
               duration: Duration(seconds: 2),
             ),
           );
-
-          return false; // لا يخرج الآن
+          return false;
         }
-
-        // ✨ إغلاق التطبيق فعليًا بدون تسجيل خروج
         Future.delayed(const Duration(milliseconds: 100), () {
           SystemNavigator.pop();
         });
-
         return true;
       },
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -108,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -116,26 +110,30 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 20),
 
-                  // آخر الأخبار
-                  const SectionHeading(title: "أحدث الأخبار"),
+                  // ✅ قسم أحدث الأخبار - التعديل هنا
+                  SectionHeading(
+                    title: "أحدث الأخبار",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NewsScreen()),
+                    ),
+                  ),
                   const SizedBox(height: 5),
 
                   GridLayout(
                     itemCount: latestNews.length,
                     crossAxisCount: 1,
-                    mainAxisExtent: 145,
+                    mainAxisExtent: 155, // زدنا الارتفاع قليلاً ليتناسب مع التصميم الجديد
                     itemBuilder: (_, index) {
                       final item = latestNews[index];
                       return HomeNewsItem(
-                        title: item.title,
-                        subtitle: item.subtitle,
-                        imageUrl: item.imageUrl,
+                        obj: item, // ✅ نمرر الكائن كاملاً الآن
                         onTap: () {
+                          // هنا يفضل توجيه المستخدم لصفحة تفاصيل الخبر مباشرة 
+                          // بدلاً من قائمة الأخبار العامة إذا أردت تجربة مستخدم أفضل
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => const NewsScreen(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const NewsScreen()),
                           );
                         },
                       );
@@ -145,7 +143,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
 
                   // آخر الفعاليات
-                  const SectionHeading(title: "أحدث الفعاليات"),
+                  SectionHeading(
+                    title: "أحدث الفعاليات",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const EventScreen()),
+                    ),
+                  ),
                   const SizedBox(height: 5),
 
                   GridLayout(
@@ -163,9 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => const EventScreen(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const EventScreen()),
                           );
                         },
                       );

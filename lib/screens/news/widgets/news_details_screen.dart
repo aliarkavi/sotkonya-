@@ -24,7 +24,8 @@ class NewsDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateString =
-        "${obj.createdAt.day}/${obj.createdAt.month}/${obj.createdAt.year}";
+    "${obj.newsDate.day}/${obj.newsDate.month}/${obj.newsDate.year}";
+
 
     // لو ما في images نستخدم imageUrl كرابط واحد
     final images = obj.images.isNotEmpty

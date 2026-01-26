@@ -29,6 +29,11 @@ class SOTKonyaApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         fontFamily: 'Tajawal',   // ← الخط الجديد
+        fontFamilyFallback: const [
+           'Roboto',
+            'Arial',
+           'sans-serif',
+],
         scaffoldBackgroundColor: Colors.white,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
