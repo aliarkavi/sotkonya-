@@ -12,6 +12,7 @@ import 'providers/administration_provider.dart';
 import 'providers/yurt_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/users_provider.dart';
+import 'providers/notification_provider.dart';
 
 import 'app.dart';
 
@@ -34,6 +35,10 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => YurtProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()..load()),
         ChangeNotifierProvider(create: (_) => UsersProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, NotificationProvider>(
+          create: (_) => NotificationProvider(),
+          update: (_, auth, notif) => notif!..init(auth),
+        ),
       ],
       child: const SOTKonyaApp(),
     ),

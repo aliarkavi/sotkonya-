@@ -1,3 +1,4 @@
+import 'dart:io'; // ✅ مطلوب للتعامل مع ملف الصورة المختارة
 import 'package:flutter/material.dart';
 
 class ProfileHeaderCard extends StatelessWidget {
@@ -8,6 +9,7 @@ class ProfileHeaderCard extends StatelessWidget {
     required this.major,
     this.initialLetter,
     this.photoUrl, // ✅ جديد
+    this.localImage, // ✅ جديد لمعاينة الصورة قبل الرفع
   });
 
   final String name;
@@ -17,6 +19,9 @@ class ProfileHeaderCard extends StatelessWidget {
 
   /// رابط الصورة (من Firestore) - قد يكون فاضي
   final String? photoUrl;
+
+  /// الصورة المختارة من الجهاز (لم ترفع بعد)
+  final File? localImage;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +76,7 @@ class ProfileHeaderCard extends StatelessWidget {
                   child: _ProfileAvatarContent(
                     letter: letter,
                     photoUrl: photoUrl,
+                    localImage: localImage, // ✅ تمرير الصورة المحلية
                   ),
                 ),
               ),
@@ -128,14 +134,29 @@ class ProfileHeaderCard extends StatelessWidget {
 class _ProfileAvatarContent extends StatelessWidget {
   final String letter;
   final String? photoUrl;
+  final File? localImage; // ✅
 
   const _ProfileAvatarContent({
     required this.letter,
     required this.photoUrl,
+    this.localImage, // ✅
   });
 
   @override
   Widget build(BuildContext context) {
+    // 1. إذا كان المستخدم قد اختار صورة من الاستوديو، نعرضها هي أولاً (للمعاينة)
+    if (localImage != null) {
+      return ClipOval(
+        child: Image.file(
+          localImage!,
+          width: 88,
+          height: 88,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    // 2. إذا لم يختار صورة جديدة، نعتمد على الرابط من الإنترنت
     final url = (photoUrl ?? '').trim();
 
     // إذا ما في صورة -> حرف أول
@@ -167,7 +188,7 @@ class _ProfileAvatarContent extends StatelessWidget {
             child: SizedBox(
               width: 22,
               height: 22,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             ),
           );
         },

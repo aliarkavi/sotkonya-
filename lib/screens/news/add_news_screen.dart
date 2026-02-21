@@ -17,6 +17,7 @@ class AddNewsScreen extends StatefulWidget {
 class _AddNewsScreenState extends State<AddNewsScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController subtitleController = TextEditingController();
+  bool _isLoading = false;
   final TextEditingController contentController = TextEditingController();
 
   final List<File> selectedImages = [];
@@ -72,6 +73,12 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
     );
   }
 
+  void _setLoading(bool value) {
+    setState(() {
+      _isLoading = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
@@ -81,23 +88,78 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          GestureDetector(
-            onTap: pickImages,
-            child: Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(14),
+          if (selectedImages.isEmpty)
+            GestureDetector(
+              onTap: pickImages,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                    child: Icon(Icons.add_photo_alternate,
+                        size: 40, color: Colors.grey)),
               ),
-              child: selectedImages.isEmpty
-                  ? const Center(child: Icon(Icons.add_photo_alternate))
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(14),
-                      child: Image.file(selectedImages.first,
-                          fit: BoxFit.cover),
-                    ),
+            )
+          else
+            SizedBox(
+              height: 180,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: selectedImages.length + 1,
+                separatorBuilder: (context, index) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  if (index == selectedImages.length) {
+                    return GestureDetector(
+                      onTap: pickImages,
+                      child: Container(
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(
+                            child: Icon(Icons.add, color: Colors.grey)),
+                      ),
+                    );
+                  }
+                  return Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.file(
+                          selectedImages[index],
+                          width: 180,
+                          height: 180,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedImages.removeAt(index);
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close,
+                                size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
 
           const SizedBox(height: 20),
           buildTextField("عنوان الخبر", titleController),
@@ -137,6 +199,7 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             onPressed: () async {
+              _setLoading(true);
               final now = DateTime.now();
               List<String> uploadedImages = [];
 
@@ -158,10 +221,14 @@ class _AddNewsScreenState extends State<AddNewsScreen> {
               );
 
               await newsProvider.addNews(item);
-              if (mounted) Navigator.pop(context);
+                _setLoading(false);
+                if (mounted) Navigator.pop(context);
             },
-            child: const Text("نشر الخبر"),
+            child: _isLoading ? const CircularProgressIndicator() : const Text("نشر الخبر"),
           ),
+                      if (_isLoading)
+            const SizedBox(height: 8),
+
         ],
       ),
     );

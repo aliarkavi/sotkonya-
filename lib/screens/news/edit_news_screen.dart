@@ -53,6 +53,86 @@ class _EditNewsScreenState extends State<EditNewsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (oldImages.isEmpty && newImages.isEmpty)
+            GestureDetector(
+              onTap: pickImages,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Center(
+                    child: Icon(Icons.add_photo_alternate,
+                        size: 40, color: Colors.grey)),
+              ),
+            )
+          else
+            SizedBox(
+              height: 180,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: oldImages.length + newImages.length + 1,
+                separatorBuilder: (context, index) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  if (index == oldImages.length + newImages.length) {
+                    return GestureDetector(
+                      onTap: pickImages,
+                      child: Container(
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Center(
+                            child: Icon(Icons.add, color: Colors.grey)),
+                      ),
+                    );
+                  }
+
+                  final isOld = index < oldImages.length;
+                  final imageWidget = isOld
+                      ? Image.network(oldImages[index],
+                          width: 180, height: 180, fit: BoxFit.cover)
+                      : Image.file(newImages[index - oldImages.length],
+                          width: 180, height: 180, fit: BoxFit.cover);
+
+                  return Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: imageWidget,
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isOld) {
+                                oldImages.removeAt(index);
+                              } else {
+                                newImages.removeAt(index - oldImages.length);
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close,
+                                size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          const SizedBox(height: 20),
           buildField("عنوان الخبر", titleController),
           const SizedBox(height: 12),
           buildField("الملخص", subtitleController),

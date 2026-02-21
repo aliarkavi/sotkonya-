@@ -56,6 +56,18 @@ class EventRegistrationRequestService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
+      // ✅ إنشاء إشعار للمستخدم عند تقديم الطلب
+      final notifRef = _db.collection('notifications').doc();
+      tx.set(notifRef, {
+        'userId': uid,
+        'title': 'تم استلام طلبك ⏳',
+        'body': 'تم استلام طلب تسجيلك في الفعالية: ${eventData['title'] ?? ''} وهو قيد المراجعة.',
+        'type': 'event_status',
+        'eventId': eventId,
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
       return 'created';
     });
   }
@@ -97,6 +109,18 @@ class EventRegistrationRequestService {
         'registeredUsers': FieldValue.increment(1),
       });
 
+      // ✅ إنشاء إشعار للمستخدم
+      final notifRef = _db.collection('notifications').doc();
+      tx.set(notifRef, {
+        'userId': uid,
+        'title': 'تم قبول طلبك ✅',
+        'body': 'تمت الموافقة على تسجيلك في فعالية: ${eventData['title'] ?? ''}',
+        'type': 'event_status',
+        'eventId': eventId,
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
       return 'approved';
     });
   }
@@ -113,6 +137,17 @@ class EventRegistrationRequestService {
       'rejectedAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+    // ✅ إنشاء إشعار للمستخدم (خارج الـ Transaction لأنه set عادي)
+    await _db.collection('notifications').add({
+      'userId': uid,
+      'title': 'تم رفض طلبك ❌',
+      'body': 'نعتذر، تم رفض طلب تسجيلك في الفعالية.',
+      'type': 'event_status',
+      'eventId': eventId,
+      'isRead': false,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
   }
 
   /// ✅ (الخيار 1) إلغاء القبول: Approved -> Pending

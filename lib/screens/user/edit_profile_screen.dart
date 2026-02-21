@@ -71,9 +71,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     facultyController = TextEditingController(text: u.faculty);
     extraInfoController = TextEditingController(text: u.extraInfo);
 
-    if (u.gender == 'male') {
+    if (u.gender == 'male' || u.gender == 'ذكر') {
       gender = 'ذكر';
-    } else if (u.gender == 'female') {
+    } else if (u.gender == 'female' || u.gender == 'أنثى') {
       gender = 'أنثى';
     } else if (u.gender.isNotEmpty) {
       gender = u.gender;
@@ -129,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // ملاحظة: هنا يجب أن يتعامل authProvider مع رفع الصورة إذا كانت _selectedImageFile ليست null
+    // ملاحظة: هنا سيتعامل authProvider مع رفع الصورة لأننا سنمرر _selectedImageFile
     final updatedUser = widget.user.copyWith(
       name: nameController.text.trim(),
       age: int.tryParse(ageController.text.trim()),
@@ -141,10 +141,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       gender: gender!,
       university: university!,
       studyYear: studyYear!,
-      // إذا كان عندك منطق رفع صور في الـ Provider مرر الملف له هنا
     );
 
-    // تحديث البيانات (يمكنك تمرير الملف كبارامتر إضافي إذا كان الـ Provider يدعم ذلك)
+    // تحديث البيانات (تمرير الملف كبارامتر إضافي للـ Provider)
     await auth.updateProfile(updatedUser, imageFile: _selectedImageFile);
 
     if (!mounted) return;
@@ -195,8 +194,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           name: nameController.text.isEmpty ? widget.user.name : nameController.text,
                           studentNumber: studentNumberController.text,
                           major: majorController.text,
-                          // نمرر الصورة المختارة محلياً إذا وُجدت، وإلا نمرر الرابط القديم
-                          photoUrl: _selectedImageFile == null ? widget.user.photoUrl : null,
+                          // نمرر الصورة المختارة محلياً إذا وُجدت للمعاينة
+                          photoUrl: widget.user.photoUrl,
                           localImage: _selectedImageFile, 
                         ),
                         // أيقونة كاميرا صغيرة توضيحية

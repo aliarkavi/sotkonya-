@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -19,6 +20,19 @@ import 'about_app_screen.dart';
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  // ✅ إعدادات روابط المتجر
+  // تأكد من أن هذا هو معرف الحزمة الصحيح لتطبيقك على Google Play
+  final String _androidPackageName = 'com.sotkonya.app'; 
+  // ⚠️ استبدل هذا الرقم بمعرف تطبيقك الحقيقي على App Store (Apple ID)
+  final String _iosAppId = '1234567890'; 
+
+  String _getStoreUrl() {
+    if (Platform.isIOS) {
+      return 'https://apps.apple.com/app/id$_iosAppId';
+    }
+    return 'https://play.google.com/store/apps/details?id=$_androidPackageName';
+  }
+
   Future<void> _launchExternalUrl(BuildContext context, String url) async {
     final uri = Uri.parse(url);
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -31,8 +45,9 @@ class SettingsScreen extends StatelessWidget {
 
   void _shareApp() {
     Share.share(
-      'جرّب تطبيق الطلاب الآن: https://play.google.com/store/apps/details?id=com.example.app',
-      subject: 'تطبيق مفيد للطلاب',
+    
+      'ندعوكم لتجربة تطبيق تجمع الطلبة السوريين في قونيا، المنصّة المخصّصة لتسهيل تواصل الطلبة ومشاركة الفرص والخدمات الطلابية لا تترددوا بمشاركته مع زملائكم لتعم الفائدة للجميع. ${_getStoreUrl()}',
+      subject: 'تطبيق تجمع الطلبة السوريين في قونيا',
     );
   }
 
@@ -213,10 +228,7 @@ Card(
                   ListTile(
                     leading: const Icon(Icons.star_rate_outlined),
                     title: const Text('تقييم التطبيق'),
-                    onTap: () => _launchExternalUrl(
-                      context,
-                      'https://play.google.com/store/apps/details?id=com.example.app',
-                    ),
+                    onTap: () => _launchExternalUrl(context, _getStoreUrl()),
                   ),
                   const Divider(height: 0),
                   ListTile(

@@ -8,25 +8,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:381804236275:android:887a36476e323bd9131686",
-        "android_client_info": {
-          "package_name": "com.example.sotkonya"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyC5xM-T6g3pCri-v4SlKqYrGR_s1rldcpA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:381804236275:android:c0b4a64ea53229ad131686",
         "android_client_info": {
           "package_name": "com.sotkonya.app"

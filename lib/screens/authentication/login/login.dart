@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   /// EMAIL OR USERNAME
                   CustomTextField(
-                    label: "ادخل البريد الإلكتروني",
+                    label: " البريدالإلكتروني",
                     controller: emailOrUserController,
                   ),
                   const SizedBox(height: 15),

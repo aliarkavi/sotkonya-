@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io'; // ✅ مطلوب للتعامل مع ملف الصورة
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // ✅ مطلوب لرفع الصور
 
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
@@ -112,9 +114,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------
-  // ✅ تحديث ملف المستخدم (Firestore)
+  // ✅ تحديث ملف المستخدم (Firestore + Storage)
   // ---------------------------------------------------------
-  Future<void> updateProfile(AppUser updatedUser) async {
+  Future<void> updateProfile(AppUser updatedUser, {File? imageFile}) async {
     _setLoading(true);
     _setError(null);
 
@@ -125,8 +127,21 @@ class AuthProvider extends ChangeNotifier {
         throw Exception("لا يوجد مستخدم مسجل دخول");
       }
 
-      // ضمان id الصحيح
-      final toSave = updatedUser.copyWith(id: uid);
+      String finalPhotoUrl = updatedUser.photoUrl;
+
+      // 🔥 رفع الصورة إلى Firebase Storage إذا تم اختيار صورة جديدة
+      if (imageFile != null) {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('user_photos')
+            .child('$uid.jpg');
+
+        await storageRef.putFile(imageFile);
+        finalPhotoUrl = await storageRef.getDownloadURL();
+      }
+
+      // ضمان id الصحيح والرابط الجديد للصورة
+      final toSave = updatedUser.copyWith(id: uid, photoUrl: finalPhotoUrl);
 
       // تحديث Firestore (يجب أن تكون موجودة في UserService)
       await _userService.updateUser(toSave);

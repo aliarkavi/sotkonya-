@@ -2,25 +2,18 @@ class AppUser {
   final String id;
   final String name;
   final String email;
-
-  /// admin / user
   final String role;
-
   final String major;
   final String gender;
   final String photoUrl;
-
   final String phone;
   final String university;
   final String faculty;
   final String username;
-
   final int? age;
-
-  /// ✅ جديد (حسب Signup + Profile)
-  final String studentNumber; // رقم الطالب الجامعي
-  final String studyYear;     // سنة الدراسة
-  final String extraInfo;     // معلومات إضافية
+  final String studentNumber;
+  final String studyYear;
+  final String extraInfo;
 
   AppUser({
     required this.id,
@@ -109,7 +102,7 @@ class AppUser {
       university: map['university'] ?? '',
       faculty: map['faculty'] ?? '',
       username: map['username'] ?? '',
-      age: (map['age'] as num?)?.toInt(), // ✅ آمن مع Firestore
+      age: (map['age'] as num?)?.toInt(),
       studentNumber: map['studentNumber'] ?? '',
       studyYear: map['studyYear'] ?? '',
       extraInfo: map['extraInfo'] ?? '',

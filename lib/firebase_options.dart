@@ -52,19 +52,21 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC5xM-T6g3pCri-v4SlKqYrGR_s1rldcpA',
-    appId: '1:381804236275:android:887a36476e323bd9131686',
+    appId: '1:381804236275:android:c0b4a64ea53229ad131686',
     messagingSenderId: '381804236275',
     projectId: 'sotkonya-42',
+    databaseURL: 'https://sotkonya-42-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'sotkonya-42.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCBclApUp3DWnWumTzzBLdSza_LS48S2Lc',
-    appId: '1:381804236275:ios:e371124c937a9aae131686',
+    appId: '1:381804236275:ios:f7c3f574add21324131686',
     messagingSenderId: '381804236275',
     projectId: 'sotkonya-42',
+    databaseURL: 'https://sotkonya-42-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'sotkonya-42.firebasestorage.app',
-    iosBundleId: 'com.example.sotkonya',
+    iosBundleId: 'com.sotkonya.Runner',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
