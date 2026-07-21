@@ -2,7 +2,7 @@
 
 A mobile community platform for Konya, Turkey, connecting residents and visitors with local events, cultural sites, and real-time news.
 
-![Feature Graphic](assets/Feature%20Graphic.png | width=800)
+<img src="assets/Feature%20Graphic.png" width="800" />
 
 ---
 
@@ -36,21 +36,19 @@ SOT Konya provides a localized, multi-lingual mobile application. It features of
 
 ## Screenshots
 
-| Home Screen | News |
-|:---:|:---:|
-| ![Home Screen](assets/IMG_20260127_204330_500.png | width=250) | ![News](assets/IMG_20260127_204330_903.png | width=250) |
-
-| News Details | Events |
-|:---:|:---:|
-| ![News Details](assets/IMG_20260127_204331_311.png | width=250) | ![Events](assets/IMG_20260127_204330_953.png | width=250) |
-
-| Event Details | Student Housing |
-|:---:|:---:|
-| ![Event Details](assets/IMG_20260127_204331_249.png | width=250) | ![Student Housing](assets/%D8%A7%D9%84%D8%B3%D9%83%D9%86%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B7%D9%84%D8%A7%D8%A8%D9%8A%D8%A9.png | width=250) |
-
-| Settings | |
-|:---:|:---:|
-| ![Settings](assets/IMG_20260127_204330_924.png | width=250) | |
+<p align="center">
+  <img src="assets/IMG_20260127_204330_500.png" width="200" />
+  <img src="assets/IMG_20260127_204330_903.png" width="200" />
+  <img src="assets/IMG_20260127_204331_311.png" width="200" />
+</p>
+<p align="center">
+  <img src="assets/IMG_20260127_204330_953.png" width="200" />
+  <img src="assets/IMG_20260127_204331_249.png" width="200" />
+  <img src="assets/%D8%A7%D9%84%D8%B3%D9%83%D9%86%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B7%D9%84%D8%A7%D8%A8%D9%8A%D8%A9.png" width="200" />
+</p>
+<p align="center">
+  <img src="assets/IMG_20260127_204330_924.png" width="200" />
+</p>
 
 ---
 
