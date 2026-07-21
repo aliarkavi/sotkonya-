@@ -1,10 +1,12 @@
 // lib/screens/news/widgets/news_item_card.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../model/news_model.dart';
-import '../../../widgets/item_card.dart';
+import 'package:sotkonya/model/news_model.dart';
+import 'package:sotkonya/widgets/item_card.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class NewsItemCard extends StatelessWidget {
+class NewsItemCard extends ConsumerWidget {
   const NewsItemCard({
     super.key,
     required this.obj,
@@ -25,11 +27,12 @@ class NewsItemCard extends StatelessWidget {
   final VoidCallback? onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final dateString =
     "${obj.newsDate.day}/${obj.newsDate.month}/${obj.newsDate.year}";
 
 
+    final l10n = AppLocalizations.of(context)!;
     return ItemCard(
       color: color,
       onTap: onTap,
@@ -121,9 +124,9 @@ class NewsItemCard extends StatelessWidget {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: onTap,
-                    child: const Text(
-                      "اقرأ المزيد",
-                      style: TextStyle(
+                    child: Text(
+                      l10n.readMore,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -139,3 +142,8 @@ class NewsItemCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

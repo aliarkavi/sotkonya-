@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/model/app_user.dart';
-import 'package:sotkonya/providers/users_provider.dart';
 
 
-class UserManagementScreen extends StatefulWidget {
+class UserManagementScreen extends ConsumerStatefulWidget {
   const UserManagementScreen({super.key});
 
   @override
-  State<UserManagementScreen> createState() => _UserManagementScreenState();
+  ConsumerState<UserManagementScreen> createState() => _UserManagementScreenState();
 }
 
-class _UserManagementScreenState extends State<UserManagementScreen> {
+class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      context.read<UsersProvider>().loadUsers();
+      ref.read(usersProvider).loadUsers();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<UsersProvider>();
+    final provider = ref.watch(usersProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -60,14 +60,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   }
 }
 
-class _UserTile extends StatelessWidget {
+class _UserTile extends ConsumerWidget {
   final AppUser user;
 
   const _UserTile({required this.user});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = context.read<UsersProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.read(usersProvider);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

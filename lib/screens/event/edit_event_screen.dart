@@ -1,22 +1,22 @@
 // lib/screens/admin/events/edit_event_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 import 'package:sotkonya/model/event_model.dart';
-import 'package:sotkonya/providers/event_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
 
-class EditEventScreen extends StatefulWidget {
+class EditEventScreen extends ConsumerStatefulWidget {
   final EventModel event;
   const EditEventScreen({super.key, required this.event});
 
   @override
-  State<EditEventScreen> createState() => _EditEventScreenState();
+  ConsumerState<EditEventScreen> createState() => _EditEventScreenState();
 }
 
-class _EditEventScreenState extends State<EditEventScreen> {
+class _EditEventScreenState extends ConsumerState<EditEventScreen> {
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController locationController;
@@ -134,7 +134,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+    final eventNotifier = ref.read(eventProvider);
     const primaryColor = Color(0xFFf2b200);
 
     final showPaidOptions = allowRegister;
@@ -358,7 +358,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                   registeredUsers: allowRegister ? (widget.event.registeredUsers ?? 0) : null,
                 );
 
-                await eventProvider.updateEvent(updated);
+                await eventNotifier.updateEvent(updated);
                 if (context.mounted) Navigator.pop(context);
               },
               child: const Text(
@@ -372,3 +372,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
     );
   }
 }
+
+
+
+
+

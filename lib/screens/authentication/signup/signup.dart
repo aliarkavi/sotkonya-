@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/screens/settings/privacy_policy_screen.dart';
 
 import '../../../widgets/gradient_button.dart';
@@ -7,18 +8,17 @@ import '../../../widgets/text_field.dart';
 import '../../../widgets/custom_dropdown.dart';
 
 import '../../../model/app_user.dart';
-import '../../../providers/auth_provider.dart';
 import '../login/login.dart';
  // تأكد من استيراد ملف السياسة
 
-class SignupScreen extends StatefulWidget {
+class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen> {
   // Controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -72,7 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    final auth = ref.watch(authProvider);
 
     return Directionality(
       textDirection: TextDirection.rtl,

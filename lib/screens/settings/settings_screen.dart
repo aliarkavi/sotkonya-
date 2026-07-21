@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sotkonya/screens/authentication/login/login.dart';
 import 'package:sotkonya/screens/settings/user_mangment/user_management_screen.dart';
@@ -9,15 +10,13 @@ import 'package:sotkonya/screens/user/profile_screen.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../providers/auth_provider.dart';
-import '../../providers/settings_provider.dart';
 
 import '../../widgets/layouts/base_page_layout.dart';
 import '../../screens/settings/privacy_policy_screen.dart';
 
 import 'about_app_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   // ✅ إعدادات روابط المتجر
@@ -87,12 +86,12 @@ class SettingsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final settings = context.watch<SettingsProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authProviderNotifier = ref.watch(authProvider);
+    final settings = ref.watch(settingsProvider);
 
-    final appUser = authProvider.appUser;
-    final isAdmin = authProvider.isAdmin;
+    final appUser = authProviderNotifier.appUser;
+    final isAdmin = authProviderNotifier.isAdmin;
 
     return BasePageLayout(
       title: 'الإعدادات',
@@ -156,7 +155,7 @@ class SettingsScreen extends StatelessWidget {
                       final yes = await _confirmLogout(context);
                       if (!yes) return;
 
-                      final auth = context.read<AuthProvider>();
+                      final auth = ref.read(authProvider);
                       await auth.logout();
 
                       if (context.mounted) {

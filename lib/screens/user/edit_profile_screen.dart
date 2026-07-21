@@ -2,10 +2,10 @@
 import 'dart:io'; // ✅ مطلوب للتعامل مع ملف الصورة المختارة
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // ✅ مكتبة اختيار الصور
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 
 import 'package:sotkonya/model/app_user.dart';
-import 'package:sotkonya/providers/auth_provider.dart';
 
 import 'info_card.dart';
 import 'profile_header_card.dart';
@@ -13,16 +13,16 @@ import '../../../widgets/text_field.dart';
 import '../../../widgets/custom_dropdown.dart';
 import '../../../widgets/gradient_button.dart';
 
-class EditProfileScreen extends StatefulWidget {
+class EditProfileScreen extends ConsumerStatefulWidget {
   final AppUser user;
 
   const EditProfileScreen({super.key, required this.user});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController nameController;
   late final TextEditingController ageController;
   late final TextEditingController phoneController;
@@ -113,7 +113,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _save() async {
-    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final auth = ref.read(authProvider);
 
     if (nameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -162,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    final auth = ref.watch(authProvider);
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -373,7 +373,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 // الـ Widgets المساعدة (نفس أسلوبك)
 // -----------------------------------------------------------------------------
 
-class _EditRowTextField extends StatelessWidget {
+class _EditRowTextField extends ConsumerWidget {
   final IconData icon;
   final String label;
   final TextEditingController controller;
@@ -389,7 +389,7 @@ class _EditRowTextField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       crossAxisAlignment: maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
@@ -408,7 +408,7 @@ class _EditRowTextField extends StatelessWidget {
   }
 }
 
-class _EditRowDropdown extends StatelessWidget {
+class _EditRowDropdown extends ConsumerWidget {
   final IconData icon;
   final String label;
   final List<String> items;
@@ -424,7 +424,7 @@ class _EditRowDropdown extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final safeValue = (value != null && items.contains(value)) ? value : null;
 
     return Row(
@@ -445,7 +445,7 @@ class _EditRowDropdown extends StatelessWidget {
   }
 }
 
-class _ReadOnlyRow extends StatelessWidget {
+class _ReadOnlyRow extends ConsumerWidget {
   final IconData icon;
   final String label;
   final String value;
@@ -457,7 +457,7 @@ class _ReadOnlyRow extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         Icon(icon, color: Colors.grey),

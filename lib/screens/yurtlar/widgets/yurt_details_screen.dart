@@ -1,15 +1,17 @@
 // lib/screens/yurt/widgets/yurt_details_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../model/yurt_model.dart';
-import '../../../widgets/contact_information.dart';
-import '../../../widgets/details_container.dart';
-import '../../../widgets/details_item_card.dart';
-import '../../../widgets/layouts/details_page_layout.dart';
-import '../../../widgets/promo_slider.dart';
+import 'package:sotkonya/model/yurt_model.dart';
+import 'package:sotkonya/widgets/contact_information.dart';
+import 'package:sotkonya/widgets/details_container.dart';
+import 'package:sotkonya/widgets/details_item_card.dart';
+import 'package:sotkonya/widgets/layouts/details_page_layout.dart';
+import 'package:sotkonya/widgets/promo_slider.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class YurtDetailsScreen extends StatelessWidget {
+class YurtDetailsScreen extends ConsumerWidget {
   const YurtDetailsScreen({
     super.key,
     required this.color,
@@ -31,12 +33,13 @@ class YurtDetailsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     return DetailsPageLayout(
-      title: "تفاصيل السكن",
+      title: l10n.housingDetails,
       child: Column(
         children: [
-          PromoSlider(images: obj.images, color: color),
+          PromoSlider(items: obj.images, color: color, height: 250),
           const SizedBox(height: 15),
           DetailsItemCard(
             padding: 0,
@@ -123,9 +126,9 @@ class YurtDetailsScreen extends StatelessWidget {
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                           onPressed: _openLocation,
-                          child: const Text(
-                            "الموقع على الخريطة",
-                            style: TextStyle(
+                          child: Text(
+                            l10n.viewOnMap,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -144,9 +147,9 @@ class YurtDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "نبذة عن السكن",
-                  style: TextStyle(
+                Text(
+                  l10n.aboutHousing,
+                  style: const TextStyle(
                     fontSize: 18,
                     height: 1.5,
                     fontWeight: FontWeight.w600,
@@ -169,9 +172,9 @@ class YurtDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "معلومات التواصل",
-                  style: TextStyle(
+                Text(
+                  l10n.contactInfo,
+                  style: const TextStyle(
                     fontSize: 18,
                     height: 1.5,
                     fontWeight: FontWeight.w600,
@@ -198,3 +201,8 @@ class YurtDetailsScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

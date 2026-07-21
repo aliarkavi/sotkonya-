@@ -2,8 +2,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventRegistrationRequestService {
-  EventRegistrationRequestService._();
-  static final instance = EventRegistrationRequestService._();
+  EventRegistrationRequestService();
+  static final instance = EventRegistrationRequestService();
 
   final _db = FirebaseFirestore.instance;
 
@@ -26,6 +26,9 @@ class EventRegistrationRequestService {
   Future<String> createRequest({
     required String eventId,
     required String uid,
+    String? eventTitle,
+    String? userName,
+    bool? isPaid,
   }) async {
     final eventRef = _eventRef(eventId);
     final reqRef = _reqRef(eventId: eventId, uid: uid);
@@ -51,6 +54,9 @@ class EventRegistrationRequestService {
 
       tx.set(reqRef, {
         'uid': uid,
+        'userName': userName ?? '',
+        'eventTitle': eventTitle ?? '',
+        'isPaid': isPaid ?? false,
         'status': 'pending',
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
@@ -157,6 +163,14 @@ class EventRegistrationRequestService {
   /// - already_pending
   /// - request_not_found
   /// - event_not_found
+  Stream<DocumentSnapshot?> myRequestStream({
+    required String eventId,
+    required String userId,
+  }) {
+    if (userId.isEmpty) return Stream.value(null);
+    return _reqRef(eventId: eventId, uid: userId).snapshots();
+  }
+
   Future<String> revertToPending({
     required String eventId,
     required String uid,
@@ -199,3 +213,8 @@ class EventRegistrationRequestService {
     });
   }
 }
+
+
+
+
+

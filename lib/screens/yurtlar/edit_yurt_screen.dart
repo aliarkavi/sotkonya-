@@ -1,22 +1,22 @@
 // lib/screens/yurt/edit_yurt_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
-import '../../model/yurt_model.dart';
-import '../../providers/yurt_provider.dart';
-import '../../services/image_upload_service.dart';
+import 'package:sotkonya/model/yurt_model.dart';
+import 'package:sotkonya/services/image_upload_service.dart';
 
-class EditYurtScreen extends StatefulWidget {
+class EditYurtScreen extends ConsumerStatefulWidget {
   final YurtModel item;
   const EditYurtScreen({super.key, required this.item});
 
   @override
-  State<EditYurtScreen> createState() => _EditYurtScreenState();
+  ConsumerState<EditYurtScreen> createState() => _EditYurtScreenState();
 }
 
-class _EditYurtScreenState extends State<EditYurtScreen> {
+class _EditYurtScreenState extends ConsumerState<EditYurtScreen> {
   late TextEditingController titleController;
   late TextEditingController durumController;
   late TextEditingController fiyatController;
@@ -85,8 +85,6 @@ class _EditYurtScreenState extends State<EditYurtScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<YurtProvider>(context, listen: false);
-
     return Scaffold(
       appBar: AppBar(title: const Text("تعديل سكن")),
       body: ListView(
@@ -239,7 +237,7 @@ class _EditYurtScreenState extends State<EditYurtScreen> {
                 images: uploadedImages,
               );
 
-              await provider.updateYurt(updated);
+              await ref.read(yurtProvider).updateYurt(updated);
               if (mounted) Navigator.pop(context);
             },
             child: const Text("حفظ التغييرات",
@@ -250,3 +248,8 @@ class _EditYurtScreenState extends State<EditYurtScreen> {
     );
   }
 }
+
+
+
+
+

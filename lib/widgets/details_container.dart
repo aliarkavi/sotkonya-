@@ -3,9 +3,10 @@
 import 'package:flutter/material.dart';
 
 class DetailsContainer extends StatelessWidget {
-  const DetailsContainer({super.key, required this.child});
+  const DetailsContainer({super.key, required this.child, this.title});
 
   final Widget child;
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +25,30 @@ class DetailsContainer extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15.0),
-        child: child,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (title != null) ...[
+              Text(
+                title!,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF006db7),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            child,
+          ],
+        ),
       ),
     );
   }
 }
+
+
+
+
+

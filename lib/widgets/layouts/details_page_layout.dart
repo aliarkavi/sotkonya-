@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 class DetailsPageLayout extends StatelessWidget {
   final String title;
   final Widget child;
+  final VoidCallback? onActionButtonTap;
+  final Color? actionButtonColor;
 
   const DetailsPageLayout({
     super.key,
     required this.title,
     required this.child,
+    this.onActionButtonTap,
+    this.actionButtonColor,
   });
 
   @override
@@ -31,3 +35,8 @@ class DetailsPageLayout extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

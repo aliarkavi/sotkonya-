@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../model/event_model.dart';
-import '../../../widgets/item_card.dart';
+import 'package:sotkonya/model/event_model.dart';
+import 'package:sotkonya/widgets/item_card.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class EventItemCard extends StatelessWidget {
+class EventItemCard extends ConsumerWidget {
   const EventItemCard({
     super.key,
     required this.obj,
@@ -16,7 +18,7 @@ class EventItemCard extends StatelessWidget {
   final EventModel obj;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     ImageProvider? imageProvider;
 
     if (obj.images.isNotEmpty) {
@@ -146,9 +148,9 @@ class EventItemCard extends StatelessWidget {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: onTap,
-                    child: const Text(
-                      "عرض التفاصيل والتسجيل",
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.viewDetailsAndRegister,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -186,3 +188,8 @@ class EventItemCard extends StatelessWidget {
     ));
   }
 }
+
+
+
+
+

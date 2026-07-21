@@ -1,21 +1,22 @@
 // lib/screens/admin/events/add_event_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 import 'package:sotkonya/model/event_model.dart';
-import 'package:sotkonya/providers/event_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class AddEventScreen extends StatefulWidget {
+class AddEventScreen extends ConsumerStatefulWidget {
   const AddEventScreen({super.key});
 
   @override
-  State<AddEventScreen> createState() => _AddEventScreenState();
+  ConsumerState<AddEventScreen> createState() => _AddEventScreenState();
 }
 
-class _AddEventScreenState extends State<AddEventScreen> {
+class _AddEventScreenState extends ConsumerState<AddEventScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
@@ -103,14 +104,16 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final eventProvider = Provider.of<EventProvider>(context, listen: false);
+    final eventNotifier = ref.read(eventProvider);
     const primaryColor = Color(0xFFf2b200);
 
     final showPaidOptions = allowRegister;
     final showPaidFields = allowRegister && isPaid; // ✅ مبلغ + رقم أدمن
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("إضافة فعالية جديدة")),
+      appBar: AppBar(title: Text(l10n.addNewEvent)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -138,19 +141,19 @@ class _AddEventScreenState extends State<AddEventScreen> {
           ),
           const SizedBox(height: 20),
 
-          label("عنوان الفعالية"),
+          label(l10n.eventTitle),
           input(titleController),
 
           const SizedBox(height: 16),
-          label("وصف الفعالية"),
+          label(l10n.eventDescription),
           input(descriptionController, maxLines: 3),
 
           const SizedBox(height: 16),
-          label("الموقع"),
+          label(l10n.location),
           input(locationController),
 
           const SizedBox(height: 16),
-          label("التاريخ والوقت"),
+          label(l10n.dateTime),
           GestureDetector(
             onTap: pickDateTime,
             child: Container(
@@ -165,7 +168,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   const SizedBox(width: 10),
                   Text(
                     startDate == null
-                        ? "اختر تاريخ ووقت الفعالية"
+                        ? l10n.selectDateTime
                         : "${startDate!.day}/${startDate!.month}/${startDate!.year} - "
                           "${startDate!.hour}:${startDate!.minute.toString().padLeft(2, '0')}",
                     style: const TextStyle(fontSize: 15),
@@ -178,20 +181,20 @@ class _AddEventScreenState extends State<AddEventScreen> {
           ),
 
           const SizedBox(height: 16),
-          label("رابط التسجيل (اختياري)"),
+          label(l10n.registrationLinkOptional),
           input(registerUrlController),
 
           const SizedBox(height: 16),
-          label("رابط الموقع (اختياري)"),
+          label(l10n.websiteLinkOptional),
           input(websiteUrlController),
 
           const SizedBox(height: 20),
 
           Row(
             children: [
-              const Text(
-                "السماح بالتسجيل على الفعالية",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              Text(
+                l10n.allowRegistration,
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
               const Spacer(),
               Switch(
@@ -217,9 +220,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
             const SizedBox(height: 6),
             Row(
               children: [
-                const Text(
-                  "الفعالية مأجورة",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                Text(
+                  l10n.paidEvent,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 Switch(
@@ -242,23 +245,23 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
           if (allowRegister) ...[
             const SizedBox(height: 16),
-            label("الحد الأقصى للمشاركين (اتركه فارغ = غير محدد)"),
+            label(l10n.maxParticipantsHint),
             input(maxUsersController, keyboardType: TextInputType.number),
           ],
 
           // ✅ حقول المبلغ + العملة + رقم الأدمن
           if (showPaidFields) ...[
             const SizedBox(height: 16),
-            label("مبلغ الأجرة"),
+            label(l10n.feeAmount),
             input(feeAmountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true)),
 
             const SizedBox(height: 16),
-            label("العملة (مثال: ₺ أو TRY)"),
+            label(l10n.currencyHint),
             input(feeCurrencyController),
 
             const SizedBox(height: 16),
-            label("رقم واتساب الأدمن لتأكيد الدفع (مثال: +905xxxxxxxxx)"),
+            label(l10n.adminWhatsAppHint),
             input(adminPhoneController, keyboardType: TextInputType.phone),
           ],
 
@@ -273,7 +276,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
               onPressed: () async {
                 if (startDate == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("الرجاء اختيار تاريخ ووقت الفعالية")),
+                    SnackBar(content: Text(l10n.selectDateTimePrompt)),
                   );
                   return;
                 }
@@ -282,13 +285,13 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   final fee = double.tryParse(feeAmountController.text.trim().replaceAll(',', '.')) ?? 0;
                   if (fee <= 0) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("الرجاء إدخال مبلغ أجرة صحيح")),
+                      SnackBar(content: Text(l10n.enterValidFeePrompt)),
                     );
                     return;
                   }
                   if (adminPhoneController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("الرجاء إدخال رقم واتساب الأدمن للفعاليات المأجورة")),
+                      SnackBar(content: Text(l10n.enterAdminWhatsAppPrompt)),
                     );
                     return;
                   }
@@ -341,12 +344,12 @@ class _AddEventScreenState extends State<AddEventScreen> {
                   registeredUsers: allowRegister ? 0 : null,
                 );
 
-                await eventProvider.addEvent(item);
+                await eventNotifier.addEvent(item);
                 if (context.mounted) Navigator.pop(context);
               },
-              child: const Text(
-                "حفظ الفعالية",
-                style: TextStyle(
+              child: Text(
+                l10n.saveEvent,
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -359,3 +362,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
     );
   }
 }
+
+
+
+
+

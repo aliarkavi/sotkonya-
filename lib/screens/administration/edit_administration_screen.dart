@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/model/administration_item.dart';
-import 'package:sotkonya/providers/administration_provider.dart';
 
-class EditAdministrationScreen extends StatefulWidget {
+class EditAdministrationScreen extends ConsumerStatefulWidget {
   final AdministrationItem item;
   const EditAdministrationScreen({super.key, required this.item});
 
   @override
-  State<EditAdministrationScreen> createState() =>
+  ConsumerState<EditAdministrationScreen> createState() =>
       _EditAdministrationScreenState();
 }
 
-class _EditAdministrationScreenState extends State<EditAdministrationScreen> {
+class _EditAdministrationScreenState extends ConsumerState<EditAdministrationScreen> {
   late TextEditingController titleController;
   late TextEditingController jobController;
   late TextEditingController aboutController;
@@ -32,7 +32,7 @@ class _EditAdministrationScreenState extends State<EditAdministrationScreen> {
   @override
   Widget build(BuildContext context) {
     final provider =
-        Provider.of<AdministrationProvider>(context, listen: false);
+        ref.read(administrationProvider);
 
     return Scaffold(
       appBar: AppBar(

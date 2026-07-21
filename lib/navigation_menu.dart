@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/home/home_screen.dart';
@@ -6,14 +7,14 @@ import 'screens/event/event_screen.dart';
 import 'screens/yurtlar/yurtlar_screen.dart';
 import 'screens/settings/settings_screen.dart';
 
-class NavigationMenu extends StatefulWidget {
+class NavigationMenu extends ConsumerStatefulWidget {
   const NavigationMenu({super.key});
 
   @override
-  State<NavigationMenu> createState() => _NavigationMenuState();
+  ConsumerState<NavigationMenu> createState() => _NavigationMenuState();
 }
 
-class _NavigationMenuState extends State<NavigationMenu> {
+class _NavigationMenuState extends ConsumerState<NavigationMenu> {
   int currentIndex = 0;
 
   DateTime? _lastBackPress;

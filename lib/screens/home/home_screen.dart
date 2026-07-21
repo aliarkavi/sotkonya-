@@ -1,12 +1,10 @@
 // ignore_for_file: unnecessary_string_interpolations, deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/screens/home/widgets/home_events_card.dart';
 
-import '../../providers/auth_provider.dart';
-import '../../providers/news_provider.dart';
-import '../../providers/event_provider.dart';
 
 import '../../widgets/layouts/grid_layout.dart';
 import '../../widgets/section_heading.dart';
@@ -16,38 +14,38 @@ import '../event/event_screen.dart';
 
 import 'widgets/home_news_item.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   DateTime? lastPressed;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
-      final eventProvider = Provider.of<EventProvider>(context, listen: false);
+      final newsProviderNotifier = ref.read(newsProvider);
+      final eventProviderNotifier = ref.read(eventProvider);
 
-      newsProvider.fetchNews();
-      eventProvider.fetchEvents();
+      newsProviderNotifier.fetchNews();
+      eventProviderNotifier.fetchEvents();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final newsProvider = Provider.of<NewsProvider>(context);
-    final eventProvider = Provider.of<EventProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
+    final newsProviderNotifier = ref.watch(newsProvider);
+    final eventProviderNotifier = ref.watch(eventProvider);
+    final authProviderNotifier = ref.watch(authProvider);
 
     // نأخذ أول خبرين وأول فعاليتين
-    final latestNews = newsProvider.news.take(2).toList();
-    final latestEvents = eventProvider.events.take(2).toList();
-    final userName = authProvider.appUser?.name ?? "زائر";
+    final latestNews = newsProviderNotifier.news.take(2).toList();
+    final latestEvents = eventProviderNotifier.events.take(2).toList();
+    final userName = authProviderNotifier.appUser?.name ?? "زائر";
 
     return WillPopScope(
       onWillPop: () async {

@@ -1,236 +1,131 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
-
 import 'package:sotkonya/model/news_model.dart';
-import 'package:sotkonya/providers/news_provider.dart';
 import 'package:sotkonya/services/image_upload_service.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class AddNewsScreen extends StatefulWidget {
+class AddNewsScreen extends ConsumerStatefulWidget {
   const AddNewsScreen({super.key});
 
   @override
-  State<AddNewsScreen> createState() => _AddNewsScreenState();
+  ConsumerState<AddNewsScreen> createState() => _AddNewsScreenState();
 }
 
-class _AddNewsScreenState extends State<AddNewsScreen> {
+class _AddNewsScreenState extends ConsumerState<AddNewsScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController subtitleController = TextEditingController();
-  bool _isLoading = false;
   final TextEditingController contentController = TextEditingController();
+  DateTime? selectedDate;
+  List<XFile> selectedImages = [];
 
-  final List<File> selectedImages = [];
-  final Color primaryColor = const Color(0xFF006db7);
-
-  DateTime? selectedNewsDate;
+  Widget buildTextField(String label, TextEditingController controller,
+      {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 
   Future<void> pickImages() async {
     final picker = ImagePicker();
-    final files = await picker.pickMultiImage();
-    if (files.isNotEmpty) {
-      setState(() {
-        selectedImages.addAll(files.map((e) => File(e.path)));
-      });
+    final images = await picker.pickMultiImage(imageQuality: 50);
+    if (images.isNotEmpty) {
+      setState(() => selectedImages.addAll(images));
     }
-  }
-
-  Future<void> pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() => selectedNewsDate = picked);
-    }
-  }
-
-  Widget buildTextField(String label, TextEditingController c,
-      {int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 14)),
-        const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: TextField(
-            controller: c,
-            maxLines: maxLines,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _setLoading(bool value) {
-    setState(() {
-      _isLoading = value;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final newsProvider = Provider.of<NewsProvider>(context, listen: false);
-
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("إضافة خبر")),
-      body: ListView(
+      appBar: AppBar(title: Text(l10n.addNewNews)),
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        children: [
-          if (selectedImages.isEmpty)
-            GestureDetector(
-              onTap: pickImages,
-              child: Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: const Center(
-                    child: Icon(Icons.add_photo_alternate,
-                        size: 40, color: Colors.grey)),
+        child: ListView(
+          children: [
+            buildTextField(l10n.newsTitle, titleController),
+            const SizedBox(height: 12),
+            buildTextField(l10n.summary, subtitleController),
+            const SizedBox(height: 12),
+            buildTextField(l10n.newsContent, contentController, maxLines: 5),
+            const SizedBox(height: 12),
+
+            // تاريخ الخبر
+            ListTile(
+              title: Text(
+                selectedDate != null
+                    ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
+                    : l10n.selectNewsDate,
               ),
-            )
-          else
-            SizedBox(
-              height: 180,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: selectedImages.length + 1,
-                separatorBuilder: (context, index) => const SizedBox(width: 10),
-                itemBuilder: (context, index) {
-                  if (index == selectedImages.length) {
-                    return GestureDetector(
-                      onTap: pickImages,
-                      child: Container(
-                        width: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Center(
-                            child: Icon(Icons.add, color: Colors.grey)),
-                      ),
-                    );
-                  }
-                  return Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: Image.file(
-                          selectedImages[index],
-                          width: 180,
-                          height: 180,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: 5,
-                        right: 5,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedImages.removeAt(index);
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.close,
-                                size: 16, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
+              trailing: const Icon(Icons.calendar_today),
+              onTap: () async {
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2030),
+                );
+                if (date != null) {
+                  setState(() => selectedDate = date);
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+
+            // اختيار الصور
+            ElevatedButton.icon(
+              onPressed: pickImages,
+              icon: const Icon(Icons.image),
+              label: Text("${l10n.selectImages} (${selectedImages.length})"),
+            ),
+            const SizedBox(height: 24),
+
+            ElevatedButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.enterNewsTitlePrompt)),
                   );
-                },
-              ),
-            ),
+                  return;
+                }
 
-          const SizedBox(height: 20),
-          buildTextField("عنوان الخبر", titleController),
-          const SizedBox(height: 12),
-          buildTextField("الملخص", subtitleController),
-          const SizedBox(height: 12),
-          buildTextField("نص الخبر", contentController, maxLines: 5),
-          const SizedBox(height: 20),
+                List<String> imageUrls = [];
+                for (final img in selectedImages) {
+                  final url = await ImageUploadService.uploadImage(File(img.path));
+                  imageUrls.add(url);
+                }
 
-          GestureDetector(
-            onTap: pickDate,
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.date_range),
-                  const SizedBox(width: 10),
-                  Text(
-                    selectedNewsDate == null
-                        ? "اختر تاريخ الخبر"
-                        : "${selectedNewsDate!.day}/${selectedNewsDate!.month}/${selectedNewsDate!.year}",
-                  ),
-                ],
-              ),
-            ),
-          ),
+                final news = NewsModel(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  title: titleController.text.trim(),
+                  subtitle: subtitleController.text.trim(),
+                  details: contentController.text.trim(),
+                  imageUrl: imageUrls.isNotEmpty ? imageUrls.first : '',
+                  images: imageUrls,
+                  newsDate: selectedDate ?? DateTime.now(),
+                  createdAt: DateTime.now(),
+                );
 
-          const SizedBox(height: 24),
-
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
-            onPressed: () async {
-              _setLoading(true);
-              final now = DateTime.now();
-              List<String> uploadedImages = [];
-
-              for (var file in selectedImages) {
-                uploadedImages
-                    .add(await ImageUploadService.uploadImage(file));
-              }
-
-              final item = NewsModel(
-                id: now.millisecondsSinceEpoch.toString(),
-                title: titleController.text.trim(),
-                subtitle: subtitleController.text.trim(),
-                details: contentController.text.trim(),
-                imageUrl:
-                    uploadedImages.isNotEmpty ? uploadedImages.first : "",
-                images: uploadedImages,
-                newsDate: selectedNewsDate ?? now,
-                createdAt: now,
-              );
-
-              await newsProvider.addNews(item);
-                _setLoading(false);
+                await ref.read(newsProvider).addNews(news);
                 if (mounted) Navigator.pop(context);
-            },
-            child: _isLoading ? const CircularProgressIndicator() : const Text("نشر الخبر"),
-          ),
-                      if (_isLoading)
-            const SizedBox(height: 8),
-
-        ],
+              },
+              child: Text(l10n.publishNews),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
+
+
+
+

@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/navigation_menu.dart';
 import 'package:sotkonya/screens/authentication/login/admin_login.dart';
 
-import '../../../providers/auth_provider.dart';
 import '../../../widgets/gradient_button.dart';
 import '../../../widgets/text_field.dart';
 import '../signup/signup.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController emailOrUserController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProviderNotifier = ref.watch(authProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text("تسجيل دخول"), centerTitle: true),
@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           return;
                         }
 
-                        await authProvider.resetPassword(email);
+                        await authProviderNotifier.resetPassword(email);
 
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -126,7 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   /// LOGIN BUTTON
                   GradientButton(
-                    text: authProvider.loading
+                    text: authProviderNotifier.loading
                         ? "جاري تسجيل الدخول..."
                         : "تسجيل دخول",
                     icon: Icons.clear,
@@ -144,16 +144,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
 
-                      await authProvider.login(email, password);
+                      await authProviderNotifier.login(email, password);
 
-                      if (authProvider.error != null) {
+                      if (authProviderNotifier.error != null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("كلمة المرور خاطئة او البريد غير مسجل ")),
                         );
                         return;
                       }
 
-                      if (authProvider.user != null) {
+                      if (authProviderNotifier.user != null) {
                         /// 🔥 إذا كان المستخدم أدمن → لوحة الإدارة
                         /// 🔥 إذا كان مستخدم عادي → الصفحة الرئيسية
                         Navigator.pushReplacement(

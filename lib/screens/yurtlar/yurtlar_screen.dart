@@ -1,24 +1,24 @@
 // lib/screens/yurt/yurtlar_screen.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:sotkonya/widgets/shimmer_widgets.dart';
 
-import '../../widgets/layouts/base_page_layout.dart';
-import '../../providers/yurt_provider.dart';
-import '../../providers/auth_provider.dart';
-import 'widgets/yurtlar_item_card.dart';
-import 'widgets/yurt_details_screen.dart';
-import 'add_yurt_screen.dart';
-import 'edit_yurt_screen.dart';
+import 'package:sotkonya/widgets/layouts/base_page_layout.dart';
+import 'package:sotkonya/screens/yurtlar/widgets/yurtlar_item_card.dart';
+import 'package:sotkonya/screens/yurtlar/widgets/yurt_details_screen.dart';
+import 'package:sotkonya/screens/yurtlar/add_yurt_screen.dart';
+import 'package:sotkonya/screens/yurtlar/edit_yurt_screen.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class YurtlarScreen extends StatefulWidget {
+class YurtlarScreen extends ConsumerStatefulWidget {
   const YurtlarScreen({super.key});
 
   @override
-  State<YurtlarScreen> createState() => _YurtlarScreenState();
+  ConsumerState<YurtlarScreen> createState() => _YurtlarScreenState();
 }
 
-class _YurtlarScreenState extends State<YurtlarScreen> {
+class _YurtlarScreenState extends ConsumerState<YurtlarScreen> {
   static const Color primaryColor = Color(0xFFeb5623);
 
   bool _initialized = false;
@@ -33,9 +33,9 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
 
-      final provider = Provider.of<YurtProvider>(context, listen: false);
-      if (provider.items.isEmpty && !provider.loading) {
-        provider.fetchYurtlar();
+      final yurtState = ref.read(yurtProvider);
+      if (yurtState.items.isEmpty && !yurtState.loading) {
+        ref.read(yurtProvider).fetchYurtlar();
       }
     });
   }
@@ -44,6 +44,7 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
   // 🔥 BottomSheet الخاص بالإجراءات
   // ================================
   Future<String?> _showAdminActions() {
+    final l10n = AppLocalizations.of(context)!;
     return showModalBottomSheet<String>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -76,12 +77,12 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.edit, color: primaryColor),
-                      SizedBox(width: 12),
+                    children: [
+                      const Icon(Icons.edit, color: primaryColor),
+                      const SizedBox(width: 12),
                       Text(
-                        "تعديل السكن",
-                        style: TextStyle(
+                        l10n.editHousing,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: primaryColor,
@@ -105,12 +106,12 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.delete, color: Colors.red),
-                      SizedBox(width: 12),
+                    children: [
+                      const Icon(Icons.delete, color: Colors.red),
+                      const SizedBox(width: 12),
                       Text(
-                        "حذف السكن",
-                        style: TextStyle(
+                        l10n.deleteHousing,
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.red,
                           fontWeight: FontWeight.w600,
@@ -134,12 +135,12 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
-                    children: const [
-                      Icon(Icons.close, color: Colors.grey),
-                      SizedBox(width: 12),
+                    children: [
+                      const Icon(Icons.close, color: Colors.grey),
+                      const SizedBox(width: 12),
                       Text(
-                        "إلغاء",
-                        style: TextStyle(
+                        l10n.cancel,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -159,16 +160,15 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<YurtProvider>(context);
-    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
+    final yurtState = ref.watch(yurtProvider);
+    final isAdmin = ref.watch(authProvider).isAdmin;
+
+    final l10n = AppLocalizations.of(context)!;
 
     return BasePageLayout(
-      title: "السكنات الطلابية",
-      child: provider.loading
-          ? Column(
-  children: List.generate(4, (_) => shimmerYurtCard()),
-)
-
+      title: l10n.housing,
+      child: yurtState.loading
+          ? const ShimmerYurtList()
           : Column(
               children: [
                 if (isAdmin)
@@ -187,34 +187,33 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                         );
                       },
                       icon: const Icon(Icons.add, color: Colors.white),
-                      label: const Text(
-                        "إضافة سكن جديد",
-                        style: TextStyle(color: Colors.white),
+                      label: Text(
+                        l10n.addHousing,
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
 
                 const SizedBox(height: 16),
 
-                if (provider.items.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
+                if (yurtState.items.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
                     child: Center(
                       child: Text(
-                        "لم يتم إضافة سكنات حتى الآن",
+                        l10n.noHousingYet,
                         textAlign: TextAlign.center,
                       ),
                     ),
                   )
                 else
                   ListView.separated(
-                    itemCount: provider.items.length,
+                    itemCount: yurtState.items.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: 15),
+                    separatorBuilder: (_, __) => const SizedBox(height: 15),
                     itemBuilder: (context, index) {
-                      final item = provider.items[index];
+                      final item = yurtState.items[index];
 
                       Widget card = YurtlarItemCard(
                         obj: item,
@@ -243,6 +242,7 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                             final action = await _showAdminActions();
 
                             if (action == "edit") {
+                              if (!mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -250,24 +250,24 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                                 ),
                               );
                             } else if (action == "delete") {
+                              if (!mounted) return;
                               final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (ctx) => AlertDialog(
-                                  title: const Text("حذف السكن"),
-                                  content: const Text(
-                                      "هل أنت متأكد من حذف هذا السكن؟"),
+                                  title: Text(l10n.deleteHousing),
+                                  content: Text(l10n.deleteConfirmMessage),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(ctx, false),
-                                      child: const Text("إلغاء"),
+                                      child: Text(l10n.cancel),
                                     ),
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(ctx, true),
-                                      child: const Text(
-                                        "حذف",
-                                        style: TextStyle(color: Colors.red),
+                                      child: Text(
+                                        l10n.delete,
+                                        style: const TextStyle(color: Colors.red),
                                       ),
                                     ),
                                   ],
@@ -275,7 +275,9 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
                               );
 
                               if (confirm == true) {
-                                await provider.deleteYurt(item.id);
+                                await ref
+                                    .read(yurtProvider.notifier)
+                                    .deleteYurt(item.id);
                               }
                             }
                           },
@@ -291,3 +293,8 @@ class _YurtlarScreenState extends State<YurtlarScreen> {
     );
   }
 }
+
+
+
+
+

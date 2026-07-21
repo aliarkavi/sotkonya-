@@ -190,3 +190,64 @@ Widget shimmerDetailsPage() {
     ],
   );
 }
+
+class ShimmerNewsList extends StatelessWidget {
+  const ShimmerNewsList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(4, (_) => Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: shimmerNewsCard(),
+      )),
+    );
+  }
+}
+
+class ShimmerEventList extends StatelessWidget {
+  const ShimmerEventList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(3, (_) => Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: shimmerEventCard(),
+      )),
+    );
+  }
+}
+
+class ShimmerYurtList extends StatelessWidget {
+  const ShimmerYurtList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(4, (_) => Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: shimmerYurtCard(),
+      )),
+    );
+  }
+}
+
+class ShimmerAdministrationList extends StatelessWidget {
+  const ShimmerAdministrationList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(5, (_) => Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: shimmerContainer(height: 100, radius: 18),
+      )),
+    );
+  }
+}
+
+
+
+
+

@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 
 import '../../widgets/layouts/base_page_layout.dart';
-import '../../providers/administration_provider.dart';
-import '../../providers/auth_provider.dart';
 import 'widgets/administration_item_card.dart';
 import 'add_administration_screen.dart';
 import 'edit_administration_screen.dart';
 
-class AdministrationScreen extends StatefulWidget {
+class AdministrationScreen extends ConsumerStatefulWidget {
   const AdministrationScreen({super.key});
 
   @override
-  State<AdministrationScreen> createState() => _AdministrationScreenState();
+  ConsumerState<AdministrationScreen> createState() => _AdministrationScreenState();
 }
 
-class _AdministrationScreenState extends State<AdministrationScreen> {
+class _AdministrationScreenState extends ConsumerState<AdministrationScreen> {
   bool _initialized = false;
 
   @override
@@ -29,7 +28,7 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
       if (!mounted) return;
 
       final provider =
-          Provider.of<AdministrationProvider>(context, listen: false);
+          ref.read(administrationProvider);
       if (provider.items.isEmpty && !provider.loading) {
         provider.fetchAdministration();
       }
@@ -38,8 +37,8 @@ class _AdministrationScreenState extends State<AdministrationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<AdministrationProvider>(context);
-    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
+    final provider = ref.watch(administrationProvider);
+    final isAdmin = ref.watch(authProvider).isAdmin;
 
     return BasePageLayout(
       title: "إدارة الجامعة",

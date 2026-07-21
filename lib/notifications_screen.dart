@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sotkonya/providers/notification_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class NotificationsScreen extends StatelessWidget {
+class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final provider = Provider.of<NotificationProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final provider = ref.watch(notificationProvider);
     final notifications = provider.notifications;
 
     return Scaffold(

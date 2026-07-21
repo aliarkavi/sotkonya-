@@ -1,21 +1,22 @@
 // lib/screens/yurt/add_yurt_screen.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sotkonya/providers/riverpod_providers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
-import '../../model/yurt_model.dart';
-import '../../providers/yurt_provider.dart';
-import '../../services/image_upload_service.dart';
+import 'package:sotkonya/model/yurt_model.dart';
+import 'package:sotkonya/services/image_upload_service.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class AddYurtScreen extends StatefulWidget {
+class AddYurtScreen extends ConsumerStatefulWidget {
   const AddYurtScreen({super.key});
 
   @override
-  State<AddYurtScreen> createState() => _AddYurtScreenState();
+  ConsumerState<AddYurtScreen> createState() => _AddYurtScreenState();
 }
 
-class _AddYurtScreenState extends State<AddYurtScreen> {
+class _AddYurtScreenState extends ConsumerState<AddYurtScreen> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController durumController = TextEditingController();
   final TextEditingController fiyatController = TextEditingController();
@@ -67,10 +68,9 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<YurtProvider>(context, listen: false);
-
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text("إضافة سكن")),
+      appBar: AppBar(title: Text(l10n.addHousing)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -147,21 +147,21 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
 
           const SizedBox(height: 20),
 
-          buildField("اسم السكن", titleController),
+          buildField(l10n.housingName, titleController),
           const SizedBox(height: 12),
-          buildField("الحالة", durumController),
+          buildField(l10n.status, durumController),
           const SizedBox(height: 12),
-          buildField("الإيجار", fiyatController),
+          buildField(l10n.rent, fiyatController),
           const SizedBox(height: 12),
-          buildField("معلومات التواصل / نوع الغرف", personelController),
+          buildField(l10n.contactRoomsInfo, personelController),
           const SizedBox(height: 12),
-          buildField("الموقع", konumController),
+          buildField(l10n.location, konumController),
           const SizedBox(height: 12),
-          buildField("رابط خرائط Google", konumLinkController),
+          buildField(l10n.googleMapsLink, konumLinkController),
           const SizedBox(height: 12),
-          buildField("رقم الهاتف", telefoneController),
+          buildField(l10n.phone, telefoneController),
           const SizedBox(height: 12),
-          buildField("نبذة عن السكن", detailsController, maxLines: 3),
+          buildField(l10n.aboutHousing, detailsController, maxLines: 3),
 
           const SizedBox(height: 20),
 
@@ -196,14 +196,19 @@ class _AddYurtScreenState extends State<AddYurtScreen> {
                 images: uploadedImages,
               );
 
-              await provider.addYurt(item);
+              await ref.read(yurtProvider).addYurt(item);
               if (mounted) Navigator.pop(context);
             },
-            child: const Text("حفظ السكن",
-                style: TextStyle(color: Colors.white, fontSize: 16)),
+            child: Text(l10n.saveHousing,
+                style: const TextStyle(color: Colors.white, fontSize: 16)),
           ),
         ],
       ),
     );
   }
 }
+
+
+
+
+

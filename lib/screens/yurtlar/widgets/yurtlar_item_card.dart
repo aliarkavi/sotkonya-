@@ -1,11 +1,13 @@
 // lib/screens/yurt/widgets/yurtlar_item_card.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../model/yurt_model.dart';
-import '../../../widgets/item_card.dart';
+import 'package:sotkonya/model/yurt_model.dart';
+import 'package:sotkonya/widgets/item_card.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
-class YurtlarItemCard extends StatelessWidget {
+class YurtlarItemCard extends ConsumerWidget {
   const YurtlarItemCard({
     super.key,
     required this.iconData,
@@ -26,7 +28,7 @@ class YurtlarItemCard extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ItemCard(
       color: color,
       onTap: onTap,
@@ -133,9 +135,9 @@ class YurtlarItemCard extends StatelessWidget {
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     onPressed: onTap,
-                    child: const Text(
-                      "تفاصيل السكن",
-                      style: TextStyle(
+                    child: Text(
+                      AppLocalizations.of(context)!.housingDetails,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
@@ -192,3 +194,8 @@ class YurtlarItemCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

@@ -1,17 +1,19 @@
 // lib/screens/news/widgets/news_details_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../model/news_model.dart';
-import '../../../widgets/details_container.dart';
-import '../../../widgets/details_item_card.dart';
-import '../../../widgets/layouts/details_page_layout.dart';
-import '../../../widgets/promo_slider.dart';
-import '../../../widgets/sub_title_container.dart';
+import 'package:sotkonya/model/news_model.dart';
+import 'package:sotkonya/widgets/details_container.dart';
+import 'package:sotkonya/widgets/details_item_card.dart';
+import 'package:sotkonya/widgets/layouts/details_page_layout.dart';
+import 'package:sotkonya/widgets/promo_slider.dart';
+import 'package:sotkonya/widgets/sub_title_container.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
 
 // ✅ NEW: clickable links widget
-import '../../../widgets/content_widget.dart';
+import 'package:sotkonya/widgets/content_widget.dart';
 
-class NewsDetailsScreen extends StatelessWidget {
+class NewsDetailsScreen extends ConsumerWidget {
   const NewsDetailsScreen({
     super.key,
     required this.color,
@@ -22,7 +24,8 @@ class NewsDetailsScreen extends StatelessWidget {
   final NewsModel obj;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final dateString =
     "${obj.newsDate.day}/${obj.newsDate.month}/${obj.newsDate.year}";
 
@@ -33,7 +36,7 @@ class NewsDetailsScreen extends StatelessWidget {
         : (obj.imageUrl.isNotEmpty ? [obj.imageUrl] : <String>[]);
 
     return DetailsPageLayout(
-      title: "تفاصيل الخبر",
+      title: l10n.eventDetails,
       child: Column(
         children: [
           DetailsItemCard(
@@ -41,7 +44,7 @@ class NewsDetailsScreen extends StatelessWidget {
             color: color,
             child: Column(
               children: [
-                if (images.isNotEmpty) PromoSlider(images: images, color: color),
+                if (images.isNotEmpty) PromoSlider(items: images, color: color),
                 const SizedBox(height: 5),
                 Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -94,3 +97,8 @@ class NewsDetailsScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
