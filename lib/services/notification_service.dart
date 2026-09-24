@@ -6,17 +6,20 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
   NotificationService._();
+
   static final NotificationService instance = NotificationService._();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+
   final FlutterLocalNotificationsPlugin _local =
       FlutterLocalNotificationsPlugin();
 
   // Topics
-  static const String topicAll = 'sotkonya_all'; // تنظيف قديم فقط
+  static const String topicAll = 'sotkonya_all';
   static const String topicNews = 'news';
   static const String topicEvents = 'events';
 
+  // Android notification channel
   static const String _channelId = 'sotkonya_default_channel';
   static const String _channelName = 'SotKonya Notifications';
   static const String _channelDesc = 'App notifications';
@@ -29,6 +32,7 @@ class NotificationService {
   Future<void> init() async {
     if (_initialized) return;
     if (!_isSupportedPlatform) return;
+
     _initialized = true;
 
     // 1) Permissions (Android 13+ / iOS)
@@ -38,8 +42,11 @@ class NotificationService {
       sound: true,
     );
 
-    // 2) Local notifications init
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // 2) Local notifications initialization
+    const androidInit = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+
     const iosInit = DarwinInitializationSettings();
 
     const initSettings = InitializationSettings(
@@ -47,9 +54,11 @@ class NotificationService {
       iOS: iosInit,
     );
 
-    await _local.initialize(initSettings);
+    await _local.initialize(
+      settings: initSettings,
+    );
 
-    // 3) Android channel
+    // 3) Android notification channel
     const channel = AndroidNotificationChannel(
       _channelId,
       _channelName,
@@ -57,20 +66,23 @@ class NotificationService {
       importance: Importance.high,
     );
 
-    final androidPlugin = _local.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin =
+        _local.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+
     await androidPlugin?.createNotificationChannel(channel);
 
     // 4) Foreground messages -> show local notification
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final n = message.notification;
+
       if (n == null) return;
 
       await _local.show(
-        DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        n.title,
-        n.body,
-        const NotificationDetails(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: n.title,
+        body: n.body,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             _channelId,
             _channelName,
@@ -83,26 +95,35 @@ class NotificationService {
       );
     });
 
-    // (اختياري) اطبع التوكن للتجربة
+    // 5) FCM token
     try {
       final token = await _messaging.getToken();
-      debugPrint('FCM TOKEN: ${token ?? "NULL"}');
+
+      debugPrint(
+        'FCM TOKEN: ${token ?? "NULL"}',
+      );
 
       _messaging.onTokenRefresh.listen((t) {
-        debugPrint('FCM TOKEN REFRESHED: $t');
+        debugPrint(
+          'FCM TOKEN REFRESHED: $t',
+        );
       });
     } catch (e) {
-      debugPrint('FCM TOKEN ERROR: $e');
+      debugPrint(
+        'FCM TOKEN ERROR: $e',
+      );
     }
   }
 
   Future<void> subscribeTo(String topic) async {
     if (!_isSupportedPlatform) return;
+
     await _messaging.subscribeToTopic(topic);
   }
 
   Future<void> unsubscribeFrom(String topic) async {
     if (!_isSupportedPlatform) return;
+
     await _messaging.unsubscribeFromTopic(topic);
   }
 
@@ -114,24 +135,25 @@ class NotificationService {
   }) async {
     if (!_isSupportedPlatform) return;
 
-    // ✅ تنظيف أي اشتراك قديم كان سبب وصول الإشعارات رغم الإطفاء
+    // تنظيف أي اشتراك قديم
     await unsubscribeFrom(topicAll);
 
-    // إذا الإشعارات مطفّية: فك الاشتراك من كل المواضيع
+    // إذا الإشعارات مطفّية:
+    // فك الاشتراك من جميع المواضيع
     if (!notificationsEnabled) {
       await unsubscribeFrom(topicNews);
       await unsubscribeFrom(topicEvents);
       return;
     }
 
-    // news topic
+    // News topic
     if (newsEnabled) {
       await subscribeTo(topicNews);
     } else {
       await unsubscribeFrom(topicNews);
     }
 
-    // events topic
+    // Events topic
     if (eventsEnabled) {
       await subscribeTo(topicEvents);
     } else {

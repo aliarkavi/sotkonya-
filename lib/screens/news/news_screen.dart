@@ -143,7 +143,7 @@ class _NewsScreenState extends ConsumerState<NewsScreen> {
                   ListView.separated(
                     itemCount: state.news.length,
                     shrinkWrap: true,
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
+                    separatorBuilder: (_, _) => const SizedBox(height: 15),
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final item = state.news[index];

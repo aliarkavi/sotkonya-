@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:sotkonya/auth_gate.dart';
+import 'package:sotkonya/l10n/app_localizations.dart';
+
 class SOTKonyaApp extends StatelessWidget {
   const SOTKonyaApp({super.key});
 
@@ -14,16 +15,8 @@ class SOTKonyaApp extends StatelessWidget {
       themeMode: ThemeMode.light,
 
       locale: const Locale('ar'),
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('tr'),
-        Locale('en'),
-      ],
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
 
       // 🎨 تعريف الثيم الفاتح مع خطوط Tajawal
       theme: ThemeData(

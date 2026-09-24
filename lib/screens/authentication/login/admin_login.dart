@@ -26,8 +26,9 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     );
 
     if (auth.error != null) {
+      debugPrint("ADMIN LOGIN ERROR: ${auth.error}");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("بريد المشرف أو كلمة المرور غير صحيحة.")),
+        SnackBar(content: Text(auth.error!)),
       );
       return;
     }

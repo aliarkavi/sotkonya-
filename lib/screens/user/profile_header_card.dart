@@ -174,7 +174,7 @@ class _ProfileAvatarContent extends StatelessWidget {
         width: 88, // 2 * radius (44*2)
         height: 88,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) {
+        errorBuilder: (_, _, _) {
           return Center(
             child: Text(
               letter,

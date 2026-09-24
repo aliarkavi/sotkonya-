@@ -211,7 +211,7 @@ class _YurtlarScreenState extends ConsumerState<YurtlarScreen> {
                     itemCount: yurtState.items.length,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
+                    separatorBuilder: (_, _) => const SizedBox(height: 15),
                     itemBuilder: (context, index) {
                       final item = yurtState.items[index];
 

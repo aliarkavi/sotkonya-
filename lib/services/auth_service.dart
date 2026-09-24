@@ -11,7 +11,26 @@ class AuthService {
       final result = await _auth.signInWithEmailAndPassword(email: email, password: password);
       return result.user;
     } on FirebaseAuthException catch (e) {
-      throw e.message ?? "حدث خطأ أثناء تسجيل الدخول";
+      switch (e.code) {
+        case 'user-not-found':
+          throw "البريد الإلكتروني غير مسجل";
+        case 'wrong-password':
+          throw "كلمة المرور غير صحيحة";
+        case 'invalid-credential':
+          throw "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+        case 'invalid-email':
+          throw "صيغة البريد الإلكتروني غير صحيحة";
+        case 'user-disabled':
+          throw "تم تعطيل هذا الحساب";
+        case 'too-many-requests':
+          throw "تم حظر تسجيل الدخول مؤقتاً لكثرة المحاولات، حاول لاحقاً";
+        case 'network-request-failed':
+          throw "تعذر الاتصال بالإنترنت، يرجى التحقق من الشبكة";
+        default:
+          throw e.message ?? "حدث خطأ أثناء تسجيل الدخول (${e.code})";
+      }
+    } catch (e) {
+      throw "حدث خطأ غير متوقع: $e";
     }
   }
 

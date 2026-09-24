@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
 
-
 import 'app.dart';
 
 Future<void> main() async {

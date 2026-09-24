@@ -143,7 +143,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                   ListView.separated(
                     itemCount: state.events.length,
                     shrinkWrap: true,
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
+                    separatorBuilder: (_, _) => const SizedBox(height: 15),
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final item = state.events[index];

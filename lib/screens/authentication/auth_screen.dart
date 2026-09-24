@@ -18,60 +18,58 @@ class AuthScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [  Container(
-  width: 100,
-  height: 100,
-  decoration: const BoxDecoration(
-    shape: BoxShape.circle,
-    gradient: LinearGradient(
-      colors: [Colors.blueGrey, Colors.orange],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    ),
-  ),
-  child: ClipOval(
-    child: Image.asset(
-      'assets/images/logo.png', // ضع اسم الصورة هنا
-      fit: BoxFit.cover,
-    ),
-  ),
-),
-
-
-                SizedBox(height: 20),
-
-                Text(
-                  'تطبيق تجمع الطلبة السوريين', //السوريين
+              children: [
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [Colors.blueGrey, Colors.orange],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'تطبيق تجمع الطلبة السوريين',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                 ),
-                Text(
+                const Text(
                   "منصة طلابية شاملة",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 GradientButton(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SignupScreen()),
+                    MaterialPageRoute(builder: (context) => const SignupScreen()),
                   ),
                   text: "إنتساب جديد",
                   icon: Icons.person_add_alt_1_outlined,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 OutlineButtonCustom(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
                   ),
                   text: "تسجيل دخول",
                   icon: Icons.login,
                 ),
-                SizedBox(height: 40),
-                Text(
+                const SizedBox(height: 40),
+                const Text(
                   "جميع الحقوق محفوظة © 2026",
                   style: TextStyle(
                     fontSize: 12,
-                    color: const Color.fromARGB(255, 127, 127, 127),
+                    color: Color.fromARGB(255, 127, 127, 127),
                   ),
                 ),
               ],

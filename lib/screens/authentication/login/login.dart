@@ -147,8 +147,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       await authProviderNotifier.login(email, password);
 
                       if (authProviderNotifier.error != null) {
+                        debugPrint("LOGIN ERROR: ${authProviderNotifier.error}");
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("كلمة المرور خاطئة او البريد غير مسجل ")),
+                          SnackBar(content: Text(authProviderNotifier.error!)),
                         );
                         return;
                       }
